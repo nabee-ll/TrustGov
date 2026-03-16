@@ -1,0 +1,2939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Passport Seva – Ministry of External Affairs, Government of India</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #003580;
+  --navy-dark: #001f4d;
+  --navy-light: #1a4fa0;
+  --saffron: #e8520a;
+  --saffron-light: #f97316;
+  --green: #15803d;
+  --green-light: #16a34a;
+  --gold: #d4a017;
+  --white: #ffffff;
+  --off-white: #f8f9fc;
+  --bg: #eef1f8;
+  --border: #d0d9ec;
+  --text: #0f172a;
+  --muted: #475569;
+  --light-blue: #dbeafe;
+  --red: #dc2626;
+  --success: #16a34a;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --font: 'DM Sans', sans-serif;
+  --font-serif: 'DM Serif Display', serif;
+}
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--navy); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE SYSTEM
+═══════════════════════════════════════════════════════════ */
+.page { display: none; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+
+/* ═══════════════════════════════════════════════════════════
+   TOP STRIP
+═══════════════════════════════════════════════════════════ */
+.top-strip {
+  background: var(--navy-dark);
+  color: #94b4d8;
+  font-size: 11px;
+  padding: 5px 0;
+  letter-spacing: 0.02em;
+}
+.top-strip .inner {
+  max-width: 1240px; margin: auto; padding: 0 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.top-strip a { color: #7aa0cc; text-decoration: none; margin-left: 14px; transition: color 0.2s; }
+.top-strip a:hover { color: var(--saffron-light); }
+.top-strip-left { display: flex; align-items: center; gap: 8px; }
+
+/* ═══════════════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════════════ */
+header {
+  background: var(--white);
+  border-bottom: 3px solid var(--saffron);
+  box-shadow: var(--shadow-md);
+  position: sticky; top: 0; z-index: 200;
+}
+.header-inner {
+  max-width: 1240px; margin: auto; padding: 14px 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.logo-area { display: flex; align-items: center; gap: 14px; }
+.emblem-wrap { width: 60px; height: 60px; flex-shrink: 0; }
+.emblem-wrap svg { width: 100%; height: 100%; }
+.brand h1 {
+  font-family: var(--font-serif);
+  font-size: 21px; color: var(--navy);
+  line-height: 1.1; font-weight: 400;
+}
+.brand p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.header-right {
+  margin-left: auto; display: flex; align-items: center; gap: 12px;
+}
+.btn-login-top {
+  background: var(--navy); color: var(--white);
+  padding: 8px 18px; border-radius: 6px; font-size: 13px;
+  border: none; cursor: pointer; font-weight: 600;
+  font-family: var(--font); transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-login-top:hover { background: var(--navy-light); }
+.btn-register-top {
+  background: transparent; color: var(--navy);
+  padding: 8px 18px; border-radius: 6px; font-size: 13px;
+  border: 2px solid var(--navy); cursor: pointer; font-weight: 600;
+  font-family: var(--font); transition: all 0.2s;
+}
+.btn-register-top:hover { background: var(--light-blue); }
+
+/* ═══════════════════════════════════════════════════════════
+   NAV BAR
+═══════════════════════════════════════════════════════════ */
+nav {
+  background: var(--navy);
+  position: sticky; top: 91px; z-index: 190;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.nav-inner {
+  max-width: 1240px; margin: auto;
+  display: flex; align-items: stretch;
+}
+.nav-item {
+  position: relative;
+}
+.nav-item > a {
+  display: flex; align-items: center; gap: 5px;
+  padding: 12px 16px; color: #c8d8f8;
+  text-decoration: none; font-size: 13px; font-weight: 500;
+  transition: all 0.2s; white-space: nowrap;
+}
+.nav-item > a:hover, .nav-item > a.active {
+  background: var(--saffron); color: var(--white);
+}
+.nav-item > a .arrow { font-size: 9px; opacity: 0.7; }
+.dropdown {
+  display: none; position: absolute; top: 100%; left: 0;
+  background: var(--white); min-width: 220px;
+  border-top: 3px solid var(--saffron);
+  box-shadow: var(--shadow-lg); z-index: 999;
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+}
+.nav-item:hover .dropdown { display: block; }
+.dropdown a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; color: var(--text); text-decoration: none;
+  font-size: 13px; border-bottom: 1px solid #f0f4ff;
+  transition: all 0.15s;
+}
+.dropdown a:hover { background: var(--light-blue); color: var(--navy); padding-left: 20px; }
+.dropdown a .dicon { font-size: 15px; }
+
+/* ═══════════════════════════════════════════════════════════
+   TRICOLOUR RIBBON
+═══════════════════════════════════════════════════════════ */
+.tricolour {
+  height: 4px;
+  background: linear-gradient(to right, #FF6600 33.33%, #fff 33.33% 66.66%, #138808 66.66%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 22px; border: none; border-radius: 6px;
+  cursor: pointer; font-size: 13px; font-weight: 600;
+  font-family: var(--font); transition: all 0.2s; text-decoration: none;
+}
+.btn-primary { background: var(--navy); color: var(--white); }
+.btn-primary:hover { background: var(--navy-light); box-shadow: var(--shadow-md); }
+.btn-saffron { background: var(--saffron); color: var(--white); }
+.btn-saffron:hover { background: var(--saffron-light); }
+.btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--navy); }
+.btn-outline:hover { background: var(--light-blue); }
+.btn-green { background: var(--green); color: var(--white); }
+.btn-green:hover { background: var(--green-light); }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+.btn-lg { padding: 13px 30px; font-size: 15px; }
+.btn-full { width: 100%; justify-content: center; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════════════════════════ */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.form-group label span.req { color: var(--red); margin-left: 3px; }
+.form-control {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border); border-radius: 6px;
+  font-size: 14px; font-family: var(--font);
+  background: var(--white); color: var(--text);
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.form-control:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(0,53,128,0.1); }
+.form-control.error { border-color: var(--red); }
+.form-control:disabled { background: #f1f5f9; color: var(--muted); cursor: not-allowed; }
+select.form-control { cursor: pointer; }
+textarea.form-control { resize: vertical; min-height: 90px; }
+.form-row { display: grid; gap: 16px; }
+.form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+.form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.field-error { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
+.field-error.show { display: block; }
+.radio-group, .check-group { display: flex; flex-direction: column; gap: 8px; }
+.radio-item, .check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.radio-item input, .check-item input { accent-color: var(--navy); width: 15px; height: 15px; cursor: pointer; }
+
+/* ═══════════════════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════════════════ */
+.card {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  padding: 13px 20px; font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.card-header.navy { background: var(--navy); color: var(--white); }
+.card-header.saffron { background: var(--saffron); color: var(--white); }
+.card-header.green { background: var(--green); color: var(--white); }
+.card-header.light { background: var(--light-blue); color: var(--navy); }
+.card-body { padding: 20px; }
+
+/* ═══════════════════════════════════════════════════════════
+   ALERTS
+═══════════════════════════════════════════════════════════ */
+.alert {
+  padding: 12px 16px; border-radius: var(--radius);
+  font-size: 13px; display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 16px;
+}
+.alert-info { background: #dbeafe; border-left: 4px solid #3b82f6; color: #1e40af; }
+.alert-success { background: #dcfce7; border-left: 4px solid var(--green); color: #14532d; }
+.alert-warning { background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; }
+.alert-error { background: #fee2e2; border-left: 4px solid var(--red); color: #991b1b; }
+.alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ═══════════════════════════════════════════════════════════
+   STEPPER
+═══════════════════════════════════════════════════════════ */
+.stepper {
+  display: flex; align-items: center; margin-bottom: 28px;
+  background: var(--white); padding: 16px 20px;
+  border-radius: var(--radius-lg); border: 1px solid var(--border);
+}
+.step {
+  display: flex; align-items: center; flex: 1;
+}
+.step-circle {
+  width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; background: var(--white); color: var(--muted);
+  flex-shrink: 0; transition: all 0.3s;
+}
+.step.active .step-circle { border-color: var(--navy); background: var(--navy); color: var(--white); }
+.step.done .step-circle { border-color: var(--green); background: var(--green); color: var(--white); }
+.step-info { margin-left: 10px; }
+.step-info .step-num { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.step-info .step-label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.step.active .step-info .step-label { color: var(--navy); }
+.step.done .step-info .step-label { color: var(--green); }
+.step-connector { flex: 1; height: 2px; background: var(--border); margin: 0 10px; transition: background 0.3s; }
+.step-connector.done { background: var(--green); }
+
+/* ═══════════════════════════════════════════════════════════
+   TABLES
+═══════════════════════════════════════════════════════════ */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { background: var(--navy); color: var(--white); }
+thead th { padding: 11px 14px; text-align: left; font-weight: 600; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--off-white); }
+tbody td { padding: 11px 14px; vertical-align: middle; }
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+}
+.status-granted { background: #dcfce7; color: #14532d; }
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-processing { background: #dbeafe; color: #1e40af; }
+.status-rejected { background: #fee2e2; color: #991b1b; }
+.status-dispatched { background: #f3e8ff; color: #6b21a8; }
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 1000;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-lg);
+  width: 100%; max-width: 480px; max-height: 90vh;
+  overflow-y: auto; box-shadow: var(--shadow-lg);
+  animation: modalIn 0.3s ease;
+}
+.modal-lg { max-width: 680px; }
+@keyframes modalIn { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
+.modal-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 16px; font-weight: 700; color: var(--navy); }
+.modal-close {
+  background: none; border: none; font-size: 20px; cursor: pointer;
+  color: var(--muted); line-height: 1; transition: color 0.2s;
+}
+.modal-close:hover { color: var(--red); }
+.modal-body { padding: 20px; }
+.modal-footer {
+  padding: 14px 20px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST NOTIFICATIONS
+═══════════════════════════════════════════════════════════ */
+#toast-container {
+  position: fixed; top: 20px; right: 20px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.toast {
+  padding: 14px 18px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; min-width: 260px;
+  box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
+  animation: toastIn 0.3s ease;
+}
+@keyframes toastIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+.toast-success { background: #15803d; color: white; }
+.toast-error { background: #dc2626; color: white; }
+.toast-info { background: var(--navy); color: white; }
+
+/* ═══════════════════════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════════════════════ */
+.progress-bar {
+  height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--navy), var(--saffron));
+  border-radius: 3px; transition: width 0.5s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT HELPERS
+═══════════════════════════════════════════════════════════ */
+.container { max-width: 1240px; margin: auto; padding: 0 20px; }
+.page-content { padding: 28px 0 40px; flex: 1; }
+.two-col { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+.section-title {
+  font-family: var(--font-serif); font-size: 22px; color: var(--navy);
+  margin-bottom: 4px;
+}
+.section-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.bold { font-weight: 700; }
+.text-navy { color: var(--navy); }
+.text-saffron { color: var(--saffron); }
+.text-green { color: var(--green); }
+.text-muted { color: var(--muted); }
+.text-red { color: var(--red); }
+.text-sm { font-size: 12px; }
+.text-xs { font-size: 11px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; background: var(--light-blue); color: var(--navy);
+}
+.chip-new { background: #fef3c7; color: #92400e; }
+.chip-hot { background: #fee2e2; color: #991b1b; }
+
+/* ═══════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════ */
+.hero {
+  background: linear-gradient(135deg, var(--navy-dark) 0%, #00398a 50%, #1254b5 100%);
+  color: var(--white); padding: 48px 0 40px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(255,100,0,0.08) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 50%, rgba(19,136,8,0.08) 0%, transparent 50%);
+}
+.hero-content { position: relative; z-index: 1; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px;
+}
+.hero h2 {
+  font-family: var(--font-serif); font-size: 36px; line-height: 1.2;
+  margin-bottom: 12px; font-weight: 400;
+}
+.hero h2 em { font-style: italic; color: #fbbf24; }
+.hero p { color: #a8c4f0; font-size: 15px; margin-bottom: 28px; max-width: 560px; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-cards-row {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 36px;
+}
+.hero-service-card {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius); padding: 16px 12px; text-align: center;
+  cursor: pointer; transition: all 0.25s;
+}
+.hero-service-card:hover {
+  background: var(--saffron); border-color: var(--saffron-light);
+  transform: translateY(-3px); box-shadow: 0 8px 20px rgba(232,82,10,0.3);
+}
+.hero-service-card .hsc-icon { font-size: 28px; margin-bottom: 8px; }
+.hero-service-card .hsc-label { font-size: 12px; font-weight: 600; color: var(--white); line-height: 1.3; }
+
+/* ═══════════════════════════════════════════════════════════
+   TRACK STATUS BANNER
+═══════════════════════════════════════════════════════════ */
+.track-banner {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 18px 0;
+}
+.track-form {
+  display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+}
+.track-form .form-group { margin-bottom: 0; flex: 1; min-width: 160px; }
+
+/* ═══════════════════════════════════════════════════════════
+   NOTICE TICKER
+═══════════════════════════════════════════════════════════ */
+.ticker-wrap {
+  background: var(--navy-dark); color: #94b4d8;
+  font-size: 12px; padding: 7px 0; overflow: hidden;
+}
+.ticker-inner { display: flex; align-items: center; max-width: 1240px; margin: auto; padding: 0 20px; gap: 12px; }
+.ticker-label {
+  background: var(--saffron); color: white; padding: 2px 10px;
+  border-radius: 3px; font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.ticker-text { overflow: hidden; flex: 1; }
+.ticker-scroll {
+  white-space: nowrap;
+  animation: ticker 30s linear infinite;
+}
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOME PAGE SECTIONS
+═══════════════════════════════════════════════════════════ */
+.services-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+.service-tile {
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 16px 12px; text-align: center; cursor: pointer;
+  background: var(--white); transition: all 0.2s;
+}
+.service-tile:hover {
+  border-color: var(--navy); background: var(--light-blue);
+  transform: translateY(-2px); box-shadow: var(--shadow-md);
+}
+.service-tile .st-icon { font-size: 28px; margin-bottom: 8px; }
+.service-tile .st-name { font-size: 12px; font-weight: 600; color: var(--navy); line-height: 1.3; }
+.service-tile .st-fee { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.quick-link-list a {
+  display: flex; align-items: center; gap: 8px; padding: 10px 0;
+  border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text);
+  font-size: 13px; transition: all 0.15s;
+}
+.quick-link-list a:last-child { border-bottom: none; }
+.quick-link-list a:hover { color: var(--saffron); padding-left: 4px; }
+.quick-link-list a::before { content: '›'; color: var(--saffron); font-size: 18px; font-weight: 700; }
+.notice-item {
+  display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border);
+  font-size: 13px;
+}
+.notice-item:last-child { border-bottom: none; }
+.notice-item::before { content: '▸'; color: var(--saffron); flex-shrink: 0; margin-top: 2px; }
+.notice-date { font-size: 10px; color: var(--muted); white-space: nowrap; }
+.helpline-card {
+  background: linear-gradient(135deg, var(--navy-dark), #1254b5);
+  color: var(--white); border-radius: var(--radius-lg);
+  padding: 20px; text-align: center; margin-bottom: 20px;
+}
+.helpline-number { font-size: 28px; font-weight: 800; color: #fbbf24; letter-spacing: 3px; }
+.helpline-sub { font-size: 11px; color: #a8c4f0; margin-top: 4px; }
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 28px 0;
+}
+.stat-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); padding: 16px; text-align: center;
+}
+.stat-num {
+  font-size: 26px; font-weight: 800; color: var(--navy);
+  font-family: var(--font-serif);
+}
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════════════════════ */
+.dash-grid {
+  display: grid; grid-template-columns: 240px 1fr; gap: 20px; min-height: 500px;
+}
+.dash-sidebar {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); overflow: hidden; height: fit-content;
+}
+.dash-user-info {
+  background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+  padding: 20px; text-align: center; color: white;
+}
+.dash-avatar {
+  width: 60px; height: 60px; background: rgba(255,255,255,0.2);
+  border-radius: 50%; border: 3px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin: 0 auto 10px;
+}
+.dash-name { font-size: 15px; font-weight: 700; }
+.dash-email { font-size: 11px; color: #a8c4f0; }
+.dash-nav a {
+  display: flex; align-items: center; gap: 10px; padding: 11px 16px;
+  text-decoration: none; color: var(--text); font-size: 13px; font-weight: 500;
+  border-bottom: 1px solid var(--border); transition: all 0.15s;
+}
+.dash-nav a:last-child { border-bottom: none; }
+.dash-nav a:hover, .dash-nav a.active { background: var(--light-blue); color: var(--navy); }
+.dash-nav a .dn-icon { font-size: 16px; }
+.dash-content { display: flex; flex-direction: column; gap: 20px; }
+.dash-greeting {
+  background: linear-gradient(135deg, var(--navy-dark), #1254b5);
+  color: white; border-radius: var(--radius-lg); padding: 20px 24px;
+}
+.dash-greeting h3 { font-family: var(--font-serif); font-size: 20px; margin-bottom: 4px; }
+.dash-greeting p { color: #a8c4f0; font-size: 13px; }
+.dash-quick-actions {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+}
+.dqa {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px 12px;
+  text-align: center; cursor: pointer; transition: all 0.2s;
+}
+.dqa:hover { border-color: var(--navy); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.dqa .dqa-icon { font-size: 24px; margin-bottom: 6px; }
+.dqa .dqa-label { font-size: 12px; font-weight: 600; color: var(--navy); }
+
+/* ═══════════════════════════════════════════════════════════
+   APPLICATION FORM
+═══════════════════════════════════════════════════════════ */
+.application-container { max-width: 860px; margin: 0 auto; }
+.form-section {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); margin-bottom: 20px; overflow: hidden;
+}
+.form-section-header {
+  background: var(--off-white); padding: 12px 20px; font-size: 14px; font-weight: 700;
+  color: var(--navy); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.form-section-body { padding: 20px; }
+.doc-checklist { list-style: none; }
+.doc-checklist li {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0; border-bottom: 1px dashed var(--border);
+  font-size: 13px;
+}
+.doc-checklist li:last-child { border-bottom: none; }
+.doc-checklist li::before { content: '☐'; font-size: 16px; color: var(--navy); }
+.fee-row {
+  display: flex; justify-content: space-between; padding: 8px 0;
+  border-bottom: 1px dashed var(--border); font-size: 13px;
+}
+.fee-row:last-child { border-bottom: none; }
+.fee-total {
+  display: flex; justify-content: space-between; padding: 12px 0;
+  font-size: 15px; font-weight: 700; color: var(--navy);
+  border-top: 2px solid var(--navy); margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APPOINTMENT PAGE
+═══════════════════════════════════════════════════════════ */
+.calendar-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+}
+.cal-day-name { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding: 6px; }
+.cal-day {
+  text-align: center; padding: 8px 4px; border-radius: 6px;
+  font-size: 13px; cursor: pointer; border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.cal-day.available { color: var(--navy); background: #dbeafe; }
+.cal-day.available:hover { background: var(--navy); color: white; }
+.cal-day.selected { background: var(--navy); color: white; border-color: var(--navy); }
+.cal-day.full { color: #94a3b8; background: #f1f5f9; cursor: not-allowed; }
+.cal-day.today { font-weight: 700; border-color: var(--saffron); }
+.cal-day.empty { visibility: hidden; }
+.time-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.time-slot {
+  border: 1.5px solid var(--border); border-radius: 6px; padding: 10px 6px;
+  text-align: center; font-size: 12px; cursor: pointer; transition: all 0.15s;
+  background: var(--white);
+}
+.time-slot.available:hover, .time-slot.selected { border-color: var(--navy); background: var(--navy); color: white; }
+.time-slot.booked { color: #94a3b8; background: #f1f5f9; cursor: not-allowed; text-decoration: line-through; }
+.time-slot.available { color: var(--navy); }
+
+/* ═══════════════════════════════════════════════════════════
+   FEEDBACK / HELPDESK
+═══════════════════════════════════════════════════════════ */
+.faq-item {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 8px; overflow: hidden;
+}
+.faq-q {
+  padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between;
+  align-items: center; font-size: 14px; font-weight: 500; background: var(--white);
+  transition: background 0.15s;
+}
+.faq-q:hover { background: var(--off-white); }
+.faq-a { display: none; padding: 14px 16px; background: var(--off-white); font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); line-height: 1.8; }
+.faq-a.open { display: block; }
+.faq-arrow { transition: transform 0.2s; font-size: 12px; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════ */
+footer {
+  background: var(--navy-dark); color: #94b4d8;
+  margin-top: auto;
+}
+.footer-main {
+  max-width: 1240px; margin: auto; padding: 36px 20px 24px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 28px;
+}
+.footer-about p { font-size: 12px; line-height: 1.8; color: #7aa0cc; margin-bottom: 14px; }
+.footer-about .footer-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.footer-about .footer-logo h3 { font-family: var(--font-serif); font-size: 16px; color: white; font-weight: 400; }
+footer h4 { font-size: 12px; font-weight: 700; color: white; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+footer ul { list-style: none; }
+footer ul li { margin-bottom: 7px; }
+footer ul li a { color: #7aa0cc; text-decoration: none; font-size: 12px; transition: color 0.15s; }
+footer ul li a:hover { color: var(--saffron-light); }
+.footer-bottom {
+  background: rgba(0,0,0,0.25); padding: 10px 20px; text-align: center;
+  font-size: 11px; color: #5a78a8;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.footer-bottom a { color: #7aa0cc; text-decoration: none; margin: 0 6px; }
+
+/* ═══════════════════════════════════════════════════════════
+   TRACK STATUS PAGE
+═══════════════════════════════════════════════════════════ */
+.track-result {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); overflow: hidden; margin-top: 20px;
+}
+.track-timeline { padding: 20px; }
+.timeline-step {
+  display: flex; gap: 14px; position: relative;
+}
+.timeline-step::before {
+  content: ''; position: absolute; left: 17px; top: 36px;
+  width: 2px; height: calc(100% - 10px); background: var(--border);
+}
+.timeline-step:last-child::before { display: none; }
+.timeline-dot {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; border: 2px solid var(--border); background: var(--white);
+  position: relative; z-index: 1;
+}
+.timeline-dot.done { background: var(--green); border-color: var(--green); color: white; }
+.timeline-dot.active { background: var(--navy); border-color: var(--navy); color: white; }
+.timeline-info { padding-bottom: 24px; flex: 1; }
+.timeline-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.timeline-info p { font-size: 12px; color: var(--muted); }
+
+/* ═══════════════════════════════════════════════════════════
+   OFFICES PAGE
+═══════════════════════════════════════════════════════════ */
+.office-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.office-card {
+  background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
+  padding: 16px; transition: all 0.2s;
+}
+.office-card:hover { border-color: var(--navy); box-shadow: var(--shadow-md); }
+.office-card h4 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.office-card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.office-tag { font-size: 10px; background: var(--light-blue); color: var(--navy); padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+@media (max-width: 1000px) {
+  .two-col { grid-template-columns: 1fr; }
+  .dash-grid { grid-template-columns: 1fr; }
+  .footer-main { grid-template-columns: 1fr 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .hero-cards-row { grid-template-columns: repeat(3, 1fr); }
+  .office-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  .form-row.cols-2, .form-row.cols-3 { grid-template-columns: 1fr; }
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero h2 { font-size: 24px; }
+  .hero-cards-row { grid-template-columns: repeat(2, 1fr); }
+  .dash-quick-actions { grid-template-columns: repeat(2, 1fr); }
+  .time-slots { grid-template-columns: repeat(3, 1fr); }
+  .office-cards { grid-template-columns: 1fr; }
+  .stepper { overflow-x: auto; gap: 0; }
+  .footer-main { grid-template-columns: 1fr; }
+  .nav-inner { overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     TOAST CONTAINER
+══════════════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ══════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════ -->
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔐 Citizen Login</h3>
+      <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-info"><span class="alert-icon">ℹ️</span>Use demo@passport.gov.in / Demo@1234 to log in</div>
+      <div class="form-group">
+        <label>Registered Email ID <span class="req">*</span></label>
+        <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email"/>
+        <div class="field-error" id="loginEmailErr">Please enter a valid email</div>
+      </div>
+      <div class="form-group">
+        <label>Password <span class="req">*</span></label>
+        <input type="password" class="form-control" id="loginPass" placeholder="Enter password"/>
+        <div class="field-error" id="loginPassErr">Please enter your password</div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Login</button>
+      <div style="text-align:center;margin:14px 0;font-size:12px;color:var(--muted)">— OR —</div>
+      <button class="btn btn-outline btn-full" onclick="doAadhaarLogin()">🪪 Login with Aadhaar OTP</button>
+      <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:12px;">
+        <a href="#" style="color:var(--navy)">Forgot Password?</a>
+        <a href="#" onclick="closeModal('loginModal');openModal('registerModal');" style="color:var(--navy)">New Registration</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>📝 New User Registration</h3>
+      <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-2">
+        <div class="form-group">
+          <label>Given Name <span class="req">*</span></label>
+          <input type="text" class="form-control" id="regFname" placeholder="As in birth certificate"/>
+        </div>
+        <div class="form-group">
+          <label>Surname <span class="req">*</span></label>
+          <input type="text" class="form-control" id="regLname" placeholder="Family/Last name"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address <span class="req">*</span></label>
+        <input type="email" class="form-control" id="regEmail" placeholder="Valid email for OTP"/>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group">
+          <label>Password <span class="req">*</span></label>
+          <input type="password" class="form-control" id="regPass" placeholder="Min 8 characters"/>
+        </div>
+        <div class="form-group">
+          <label>Confirm Password <span class="req">*</span></label>
+          <input type="password" class="form-control" id="regPass2" placeholder="Re-enter password"/>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group">
+          <label>Date of Birth <span class="req">*</span></label>
+          <input type="date" class="form-control" id="regDob"/>
+        </div>
+        <div class="form-group">
+          <label>Mobile Number <span class="req">*</span></label>
+          <input type="tel" class="form-control" id="regMobile" placeholder="10-digit mobile"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Select Passport Office <span class="req">*</span></label>
+        <select class="form-control" id="regPSO">
+          <option value="">-- Choose nearest office --</option>
+          <option>Chennai Passport Office</option>
+          <option>Bengaluru Passport Office</option>
+          <option>Mumbai Passport Office</option>
+          <option>Delhi Passport Office</option>
+          <option>Kolkata Passport Office</option>
+          <option>Hyderabad Passport Office</option>
+          <option>Pune Passport Office</option>
+          <option>Ahmedabad Passport Office</option>
+        </select>
+      </div>
+      <div class="check-item mb-16">
+        <input type="checkbox" id="regTerms"/>
+        <label for="regTerms" style="font-size:12px;">I agree to the <a href="#" style="color:var(--navy)">Terms of Service</a> and <a href="#" style="color:var(--navy)">Privacy Policy</a></label>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doRegister()">Register & Send OTP</button>
+    </div>
+  </div>
+</div>
+
+<!-- OTP Modal -->
+<div class="modal-overlay" id="otpModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📱 Verify OTP</h3>
+      <button class="modal-close" onclick="closeModal('otpModal')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">📧</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">An OTP has been sent to your registered email/mobile. Enter it below. <strong>(Use: 123456)</strong></p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;">
+        <input type="text" class="form-control" id="otp1" maxlength="1" style="width:48px;text-align:center;font-size:20px;font-weight:700;" oninput="moveOtp(this,'otp2')"/>
+        <input type="text" class="form-control" id="otp2" maxlength="1" style="width:48px;text-align:center;font-size:20px;font-weight:700;" oninput="moveOtp(this,'otp3')"/>
+        <input type="text" class="form-control" id="otp3" maxlength="1" style="width:48px;text-align:center;font-size:20px;font-weight:700;" oninput="moveOtp(this,'otp4')"/>
+        <input type="text" class="form-control" id="otp4" maxlength="1" style="width:48px;text-align:center;font-size:20px;font-weight:700;" oninput="moveOtp(this,'otp5')"/>
+        <input type="text" class="form-control" id="otp5" maxlength="1" style="width:48px;text-align:center;font-size:20px;font-weight:700;" oninput="moveOtp(this,'otp6')"/>
+        <input type="text" class="form-control" id="otp6" maxlength="1" style="width:48px;text-align:center;font-size:20px;font-weight:700;"/>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="verifyOtp()">Verify OTP</button>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;">Didn't receive? <a href="#" style="color:var(--navy)">Resend OTP</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>💳 Fee Payment</h3>
+      <button class="modal-close" onclick="closeModal('payModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span>This is a demo. No real payment will be processed.</div>
+      <div class="card mb-16" style="border-color:var(--border)">
+        <div class="card-header light">📋 Payment Summary</div>
+        <div class="card-body">
+          <div class="fee-row"><span>Passport Application Fee</span><span class="bold">₹1,500</span></div>
+          <div class="fee-row"><span>Speed Post Charges</span><span class="bold">₹50</span></div>
+          <div class="fee-row"><span>GST (18%)</span><span class="bold">₹279</span></div>
+          <div class="fee-total"><span>Total Payable</span><span>₹1,829</span></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select class="form-control" id="payMethod">
+          <option>Credit / Debit Card</option>
+          <option>Net Banking</option>
+          <option>UPI</option>
+          <option>Paytm / PhonePe</option>
+        </select>
+      </div>
+      <div id="cardFields">
+        <div class="form-group">
+          <label>Card Number</label>
+          <input type="text" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19"/>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Expiry</label><input type="text" class="form-control" placeholder="MM/YY"/></div>
+          <div class="form-group"><label>CVV</label><input type="password" class="form-control" placeholder="•••"/></div>
+        </div>
+      </div>
+      <button class="btn btn-green btn-full btn-lg" onclick="processPayment()">🔒 Pay ₹1,829 Securely</button>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Confirm Modal -->
+<div class="modal-overlay" id="apptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✅ Appointment Confirmed</h3>
+      <button class="modal-close" onclick="closeModal('apptModal')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;">
+      <div style="font-size:52px;margin-bottom:12px;">🎉</div>
+      <h4 style="font-size:18px;color:var(--green);margin-bottom:8px;">Appointment Booked!</h4>
+      <div class="card" style="text-align:left;margin:16px 0;">
+        <div class="card-body">
+          <div class="fee-row"><span>Office</span><span class="bold" id="apptOffice">—</span></div>
+          <div class="fee-row"><span>Date</span><span class="bold" id="apptDate">—</span></div>
+          <div class="fee-row"><span>Time</span><span class="bold" id="apptTime">—</span></div>
+          <div class="fee-row"><span>Token No.</span><span class="bold" id="apptToken">—</span></div>
+          <div class="fee-row"><span>ARN</span><span class="bold" id="apptARN">—</span></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);">A confirmation SMS & email has been sent. Please carry all original documents.</p>
+      <button class="btn btn-primary mt-16" onclick="closeModal('apptModal');showPage('dashboard')">Go to Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TOP STRIP
+══════════════════════════════════════════════ -->
+<div class="top-strip">
+  <div class="inner">
+    <div class="top-strip-left">
+      <span>🇮🇳</span>
+      <span>Government of India | Ministry of External Affairs</span>
+    </div>
+    <div>
+      <a href="#" onclick="adjustFont(-1)">A-</a>
+      <a href="#" onclick="adjustFont(0)">A</a>
+      <a href="#" onclick="adjustFont(1)">A+</a>
+      <a href="#" onclick="toggleLang()">हिन्दी</a>
+      <a href="#">Screen Reader</a>
+      <a href="#">Skip to Main</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo-area" style="cursor:pointer" onclick="showPage('home')">
+      <!-- Emblem -->
+      <div class="emblem-wrap">
+        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="eg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f5d57a"/>
+              <stop offset="100%" stop-color="#b8860b"/>
+            </radialGradient>
+          </defs>
+          <circle cx="40" cy="40" r="38" fill="white" stroke="#003580" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="26" fill="none" stroke="#8B6914" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="4.5" fill="#003580"/>
+          <g stroke="#003580" stroke-width="1.2" opacity="0.8">
+            <line x1="40" y1="14" x2="40" y2="35.5"/><line x1="40" y1="44.5" x2="40" y2="66"/>
+            <line x1="14" y1="40" x2="35.5" y2="40"/><line x1="44.5" y1="40" x2="66" y2="40"/>
+            <line x1="22" y1="22" x2="37.4" y2="37.4"/><line x1="42.6" y1="42.6" x2="58" y2="58"/>
+            <line x1="58" y1="22" x2="42.6" y2="37.4"/><line x1="37.4" y1="42.6" x2="22" y2="58"/>
+            <line x1="17.5" y1="31" x2="37" y2="38.5"/><line x1="43" y1="41.5" x2="62.5" y2="49"/>
+            <line x1="17.5" y1="49" x2="37" y2="41.5"/><line x1="43" y1="38.5" x2="62.5" y2="31"/>
+            <line x1="31" y1="17.5" x2="38.5" y2="37"/><line x1="41.5" y1="43" x2="49" y2="62.5"/>
+            <line x1="49" y1="17.5" x2="41.5" y2="37"/><line x1="38.5" y1="43" x2="31" y2="62.5"/>
+          </g>
+          <text x="40" y="75" text-anchor="middle" font-size="5.5" fill="#003580" font-family="serif" letter-spacing="0.5">सत्यमेव जयते</text>
+        </svg>
+      </div>
+      <div class="brand">
+        <h1>Passport Seva</h1>
+        <p>Ministry of External Affairs | Government of India</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div id="headerLoggedOut">
+        <div style="display:flex;gap:10px;">
+          <button class="btn-register-top" onclick="openModal('registerModal')">Register</button>
+          <button class="btn-login-top" onclick="openModal('loginModal')">🔐 Login</button>
+        </div>
+      </div>
+      <div id="headerLoggedIn" style="display:none;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:13px;font-weight:600;color:var(--navy)">👤 Welcome, <span id="headerUserName">User</span></span>
+          <button class="btn-login-top" onclick="showPage('dashboard')">Dashboard</button>
+          <button class="btn-register-top" onclick="doLogout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════
+     NAV
+══════════════════════════════════════════════ -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-item">
+      <a href="#" onclick="showPage('home')" id="navHome" class="active">🏠 Home</a>
+    </div>
+    <div class="nav-item">
+      <a href="#">📋 Apply Online <span class="arrow">▾</span></a>
+      <div class="dropdown">
+        <a href="#" onclick="showPage('applyForm');setFormType('new')"><span class="dicon">🆕</span> New Passport</a>
+        <a href="#" onclick="showPage('applyForm');setFormType('reissue')"><span class="dicon">🔄</span> Re-issue of Passport</a>
+        <a href="#" onclick="showPage('applyForm');setFormType('tatkal')"><span class="dicon">⚡</span> Tatkal Passport</a>
+        <a href="#" onclick="showPage('applyForm');setFormType('minor')"><span class="dicon">👶</span> Minor Passport</a>
+        <a href="#" onclick="showPage('applyForm');setFormType('pcc')"><span class="dicon">🚔</span> Police Clearance Certificate</a>
+        <a href="#" onclick="showPage('applyForm');setFormType('emergency')"><span class="dicon">🚨</span> Emergency Certificate</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="#">🔍 Track Status <span class="arrow">▾</span></a>
+      <div class="dropdown">
+        <a href="#" onclick="showPage('track')"><span class="dicon">📍</span> Track Application</a>
+        <a href="#" onclick="showPage('appointment')"><span class="dicon">🗓️</span> Appointment Availability</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="#" onclick="showPage('appointment')">🗓️ Book Appointment</a>
+    </div>
+    <div class="nav-item">
+      <a href="#" onclick="showPage('offices')">🏢 Passport Offices</a>
+    </div>
+    <div class="nav-item">
+      <a href="#">❓ Help <span class="arrow">▾</span></a>
+      <div class="dropdown">
+        <a href="#" onclick="showPage('faq')"><span class="dicon">❓</span> FAQs</a>
+        <a href="#" onclick="showPage('docAdvisor')"><span class="dicon">📄</span> Document Advisor</a>
+        <a href="#" onclick="showPage('feeCalc')"><span class="dicon">🧮</span> Fee Calculator</a>
+        <a href="#" onclick="showPage('grievance')"><span class="dicon">📢</span> Grievance Redressal</a>
+        <a href="#" onclick="showPage('contact')"><span class="dicon">📞</span> Contact Us</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="#" onclick="showPage('photoGuide')">📷 Photo Guidelines</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     TICKER
+══════════════════════════════════════════════ -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span class="ticker-label">NOTICE</span>
+    <div class="ticker-text">
+      <div class="ticker-scroll">
+        📢 e-Passport (chip-embedded) rollout begins in Delhi, Mumbai & Chennai &nbsp;|&nbsp; ✅ Post Office Passport Seva Kendras now operational at 500+ locations &nbsp;|&nbsp; ⚡ Tatkal processing time reduced to 1 working day &nbsp;|&nbsp; 📱 mPassport Seva App updated – Download Now &nbsp;|&nbsp; 📋 Revised fee structure effective 01 April 2026 &nbsp;|&nbsp; 🔗 DigiLocker integration enabled for document verification
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: HOME
+══════════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="hero-eyebrow">🌏 Official Government Portal</div>
+      <h2>Your Passport to the <em>World</em><br/>Starts Here</h2>
+      <p>Apply for a new passport, track your application, book appointments, and access all passport-related services — quickly, securely, and online.</p>
+      <div class="hero-actions">
+        <button class="btn btn-saffron btn-lg" onclick="openModal('loginModal')">🚀 Apply Now</button>
+        <button class="btn btn-outline btn-lg" style="color:white;border-color:rgba(255,255,255,0.4)" onclick="showPage('track')">🔍 Track Application</button>
+      </div>
+      <div class="hero-cards-row">
+        <div class="hero-service-card" onclick="showPage('applyForm');setFormType('new')">
+          <div class="hsc-icon">🆕</div>
+          <div class="hsc-label">New Passport</div>
+        </div>
+        <div class="hero-service-card" onclick="showPage('applyForm');setFormType('reissue')">
+          <div class="hsc-icon">🔄</div>
+          <div class="hsc-label">Re-issue</div>
+        </div>
+        <div class="hero-service-card" onclick="showPage('track')">
+          <div class="hsc-icon">📍</div>
+          <div class="hsc-label">Track Status</div>
+        </div>
+        <div class="hero-service-card" onclick="showPage('appointment')">
+          <div class="hsc-icon">🗓️</div>
+          <div class="hsc-label">Book Appointment</div>
+        </div>
+        <div class="hero-service-card" onclick="showPage('applyForm');setFormType('pcc')">
+          <div class="hsc-icon">🚔</div>
+          <div class="hsc-label">PCC</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACK FORM QUICK -->
+  <div class="track-banner">
+    <div class="container">
+      <div class="track-form">
+        <div class="form-group" style="min-width:220px;">
+          <label>File / Application Number</label>
+          <input type="text" class="form-control" id="quickTrackNum" placeholder="e.g. HYD-1234567890123"/>
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" class="form-control" id="quickTrackDob"/>
+        </div>
+        <div class="form-group">
+          <label>Passport Office</label>
+          <select class="form-control" id="quickTrackOffice">
+            <option value="">Select Office</option>
+            <option>Chennai</option><option>Bengaluru</option><option>Mumbai</option>
+            <option>Delhi</option><option>Kolkata</option><option>Hyderabad</option>
+          </select>
+        </div>
+        <div style="padding-top:20px;">
+          <button class="btn btn-saffron" onclick="showPage('track')">🔍 Track Status</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">3.8 Cr+</div>
+        <div class="stat-label">Passports Issued (2025-26)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">560+</div>
+        <div class="stat-label">Passport Seva Kendras</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">36</div>
+        <div class="stat-label">Regional Passport Offices</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">1800+</div>
+        <div class="stat-label">Post Office PSKs</div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:4px">
+      <!-- MAIN COLUMN -->
+      <div>
+        <!-- Services -->
+        <div class="card mb-24">
+          <div class="card-header navy">🛂 Our Services</div>
+          <div class="card-body">
+            <div class="services-grid">
+              <div class="service-tile" onclick="showPage('applyForm');setFormType('new')">
+                <div class="st-icon">🆕</div>
+                <div class="st-name">Fresh Passport (Normal)</div>
+                <div class="st-fee">₹1,500 | 30 days</div>
+              </div>
+              <div class="service-tile" onclick="showPage('applyForm');setFormType('tatkal')">
+                <div class="st-icon">⚡</div>
+                <div class="st-name">Fresh Passport (Tatkal)</div>
+                <div class="st-fee">₹3,500 | 7 days</div>
+              </div>
+              <div class="service-tile" onclick="showPage('applyForm');setFormType('reissue')">
+                <div class="st-icon">🔄</div>
+                <div class="st-name">Re-issue of Passport</div>
+                <div class="st-fee">₹1,500 | 30 days</div>
+              </div>
+              <div class="service-tile" onclick="showPage('applyForm');setFormType('minor')">
+                <div class="st-icon">👶</div>
+                <div class="st-name">Minor Passport</div>
+                <div class="st-fee">₹1,000 | 30 days</div>
+              </div>
+              <div class="service-tile" onclick="showPage('applyForm');setFormType('pcc')">
+                <div class="st-icon">🚔</div>
+                <div class="st-name">Police Clearance Certificate</div>
+                <div class="st-fee">₹500 | 14 days</div>
+              </div>
+              <div class="service-tile" onclick="showPage('applyForm');setFormType('emergency')">
+                <div class="st-icon">🚨</div>
+                <div class="st-name">Emergency Certificate</div>
+                <div class="st-fee">₹250 | Same day</div>
+              </div>
+              <div class="service-tile">
+                <div class="st-icon">🪪</div>
+                <div class="st-name">Identity Certificate</div>
+                <div class="st-fee">₹500 | 30 days</div>
+              </div>
+              <div class="service-tile">
+                <div class="st-icon">🏛️</div>
+                <div class="st-name">Diplomatic Passport</div>
+                <div class="st-fee">Official channel only</div>
+              </div>
+              <div class="service-tile" onclick="showPage('feeCalc')">
+                <div class="st-icon">🧮</div>
+                <div class="st-name">Fee Calculator</div>
+                <div class="st-fee">Calculate your fee</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notices -->
+        <div class="card">
+          <div class="card-header green">📢 Latest Notifications</div>
+          <div class="card-body">
+            <div class="notice-item">
+              <div>
+                <div>e-Passport (chip-embedded) rollout begins in Delhi, Mumbai & Chennai <span class="chip chip-new">NEW</span></div>
+                <div class="notice-date">14 Mar 2026</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div>
+                <div>mPassport Police App – Police verification now available digitally across all states</div>
+                <div class="notice-date">10 Mar 2026</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div>
+                <div>Revised fee structure for Passport services effective 01 April 2026 <span class="chip chip-hot">HOT</span></div>
+                <div class="notice-date">05 Mar 2026</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div>
+                <div>Tatkal passport processing time reduced to 1 working day at select PSKs</div>
+                <div class="notice-date">28 Feb 2026</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div>
+                <div>DigiLocker integration enabled — verify documents digitally without physical copies</div>
+                <div class="notice-date">20 Feb 2026</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div>
+                <div>500+ new Post Office PSKs operational across rural India</div>
+                <div class="notice-date">15 Feb 2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div>
+        <!-- Helpline -->
+        <div class="helpline-card">
+          <div style="font-size:24px;margin-bottom:8px;">📞 National Helpline</div>
+          <div class="helpline-number">1800-258-1800</div>
+          <div class="helpline-sub">Toll-Free | Mon–Sat | 8 AM – 8 PM</div>
+          <button class="btn btn-saffron btn-sm mt-16" onclick="showPage('contact')">Contact Support</button>
+        </div>
+
+        <!-- Login Card -->
+        <div class="card mb-24" id="homeLoginCard">
+          <div class="card-header navy">🔐 Citizen Login</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Email ID</label>
+              <input type="email" class="form-control" placeholder="Registered email"/>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" class="form-control" placeholder="Password"/>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="openModal('loginModal')">Login</button>
+            <div style="text-align:center;margin:12px 0;font-size:12px;color:var(--muted)">— or —</div>
+            <button class="btn btn-outline btn-full btn-sm" onclick="doAadhaarLogin()">🪪 Login via Aadhaar OTP</button>
+            <div style="text-align:center;margin-top:12px;font-size:12px;">
+              New user? <a href="#" onclick="openModal('registerModal')" style="color:var(--navy);font-weight:700">Register Here</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="card mb-24">
+          <div class="card-header navy">🔗 Quick Links</div>
+          <div class="card-body quick-link-list" style="padding:8px 20px;">
+            <a href="#" onclick="showPage('docAdvisor')">Document Advisor Tool</a>
+            <a href="#" onclick="showPage('feeCalc')">Fee Calculator</a>
+            <a href="#" onclick="showPage('appointment')">Appointment Availability</a>
+            <a href="#" onclick="showPage('grievance')">Grievance Redressal</a>
+            <a href="#">mPassport Seva App</a>
+            <a href="#" onclick="showPage('photoGuide')">Photo Guidelines</a>
+            <a href="#">NRI / Overseas Citizens</a>
+            <a href="#">Indian Embassy Abroad</a>
+            <a href="#">eVisa India</a>
+          </div>
+        </div>
+
+        <!-- App Download -->
+        <div class="card">
+          <div class="card-header saffron">📱 Download mPassport Seva App</div>
+          <div class="card-body" style="text-align:center;">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Track status, book appointments & pay fees on the go</p>
+            <div style="display:flex;gap:8px;justify-content:center;">
+              <button class="btn btn-primary btn-sm">▶ Google Play</button>
+              <button class="btn btn-primary btn-sm">🍎 App Store</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: DASHBOARD
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="page-content">
+    <div class="container">
+      <div class="dash-grid">
+        <!-- Sidebar -->
+        <div class="dash-sidebar">
+          <div class="dash-user-info">
+            <div class="dash-avatar">👤</div>
+            <div class="dash-name" id="dashUserName">Demo User</div>
+            <div class="dash-email" id="dashUserEmail">demo@passport.gov.in</div>
+          </div>
+          <div class="dash-nav">
+            <a href="#" onclick="showDashTab('overview')" class="active" id="dtab-overview"><span class="dn-icon">🏠</span> Overview</a>
+            <a href="#" onclick="showDashTab('applications')" id="dtab-applications"><span class="dn-icon">📋</span> My Applications</a>
+            <a href="#" onclick="showDashTab('appointments')" id="dtab-appointments"><span class="dn-icon">🗓️</span> My Appointments</a>
+            <a href="#" onclick="showDashTab('documents')" id="dtab-documents"><span class="dn-icon">📁</span> My Documents</a>
+            <a href="#" onclick="showDashTab('profile')" id="dtab-profile"><span class="dn-icon">⚙️</span> Profile Settings</a>
+            <a href="#" onclick="doLogout()"><span class="dn-icon">🚪</span> Logout</a>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="dash-content">
+          <!-- Overview Tab -->
+          <div id="dtabContent-overview">
+            <div class="dash-greeting">
+              <h3>Good day, <span id="dashGreetName">User</span>! 👋</h3>
+              <p>Welcome to your Passport Seva dashboard. Manage all your passport services here.</p>
+            </div>
+            <div class="dash-quick-actions">
+              <div class="dqa" onclick="showPage('applyForm');setFormType('new')">
+                <div class="dqa-icon">🆕</div>
+                <div class="dqa-label">Apply New Passport</div>
+              </div>
+              <div class="dqa" onclick="showPage('track')">
+                <div class="dqa-icon">📍</div>
+                <div class="dqa-label">Track Application</div>
+              </div>
+              <div class="dqa" onclick="showPage('appointment')">
+                <div class="dqa-icon">🗓️</div>
+                <div class="dqa-label">Book Appointment</div>
+              </div>
+              <div class="dqa" onclick="showPage('grievance')">
+                <div class="dqa-icon">📢</div>
+                <div class="dqa-label">Raise Grievance</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header navy">📋 Recent Applications</div>
+              <div class="card-body table-wrap">
+                <table>
+                  <thead><tr><th>ARN</th><th>Type</th><th>Applied On</th><th>Status</th><th>Action</th></tr></thead>
+                  <tbody>
+                    <tr>
+                      <td>AP25031600001</td>
+                      <td>Fresh Passport (Normal)</td>
+                      <td>16 Mar 2026</td>
+                      <td><span class="status-badge status-processing">⚙️ Processing</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showPage('track')">Track</button></td>
+                    </tr>
+                    <tr>
+                      <td>AP24120500023</td>
+                      <td>PCC</td>
+                      <td>05 Dec 2024</td>
+                      <td><span class="status-badge status-granted">✅ Granted</span></td>
+                      <td><button class="btn btn-sm btn-outline">Download</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Applications Tab -->
+          <div id="dtabContent-applications" style="display:none">
+            <h2 class="section-title">My Applications</h2>
+            <p class="section-sub">View and manage all your passport applications</p>
+            <div class="card">
+              <div class="card-body table-wrap">
+                <table>
+                  <thead><tr><th>ARN</th><th>Service</th><th>Date</th><th>Office</th><th>Status</th><th>Payment</th></tr></thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>AP25031600001</strong></td>
+                      <td>Fresh Passport (Normal)</td>
+                      <td>16 Mar 2026</td>
+                      <td>Chennai</td>
+                      <td><span class="status-badge status-processing">⚙️ Processing</span></td>
+                      <td><span class="status-badge status-granted">✅ Paid</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>AP24120500023</strong></td>
+                      <td>PCC</td>
+                      <td>05 Dec 2024</td>
+                      <td>Chennai</td>
+                      <td><span class="status-badge status-granted">✅ Granted</span></td>
+                      <td><span class="status-badge status-granted">✅ Paid</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>AP24031200007</strong></td>
+                      <td>Re-issue (Lost)</td>
+                      <td>12 Mar 2024</td>
+                      <td>Chennai</td>
+                      <td><span class="status-badge status-dispatched">📦 Dispatched</span></td>
+                      <td><span class="status-badge status-granted">✅ Paid</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Appointments Tab -->
+          <div id="dtabContent-appointments" style="display:none">
+            <h2 class="section-title">My Appointments</h2>
+            <p class="section-sub">Manage your upcoming PSK appointments</p>
+            <div class="card">
+              <div class="card-body">
+                <div class="alert alert-info"><span class="alert-icon">ℹ️</span>You have 1 upcoming appointment.</div>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>ARN</th><th>Office</th><th>Date</th><th>Time</th><th>Token</th><th>Status</th></tr></thead>
+                    <tbody>
+                      <tr>
+                        <td>AP25031600001</td>
+                        <td>Chennai PSK, Anna Nagar</td>
+                        <td>22 Mar 2026</td>
+                        <td>10:30 AM</td>
+                        <td>#T-047</td>
+                        <td><span class="status-badge status-pending">⏳ Upcoming</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="margin-top:14px;display:flex;gap:10px;">
+                  <button class="btn btn-primary btn-sm" onclick="showPage('appointment')">Book New Appointment</button>
+                  <button class="btn btn-outline btn-sm">Reschedule</button>
+                  <button class="btn btn-sm" style="background:#fee2e2;color:#991b1b;border:none;cursor:pointer">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documents Tab -->
+          <div id="dtabContent-documents" style="display:none">
+            <h2 class="section-title">My Documents</h2>
+            <p class="section-sub">Uploaded documents linked to your applications</p>
+            <div class="card">
+              <div class="card-body table-wrap">
+                <table>
+                  <thead><tr><th>Document</th><th>Type</th><th>Uploaded</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>Aadhaar Card</td><td>Identity Proof</td><td>16 Mar 2026</td><td><span class="status-badge status-granted">✅ Verified</span></td></tr>
+                    <tr><td>Birth Certificate</td><td>DOB Proof</td><td>16 Mar 2026</td><td><span class="status-badge status-granted">✅ Verified</span></td></tr>
+                    <tr><td>Address Proof</td><td>Residence Proof</td><td>16 Mar 2026</td><td><span class="status-badge status-pending">⏳ Pending</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Tab -->
+          <div id="dtabContent-profile" style="display:none">
+            <h2 class="section-title">Profile Settings</h2>
+            <p class="section-sub">Update your personal information</p>
+            <div class="card">
+              <div class="card-body">
+                <div class="form-row cols-2">
+                  <div class="form-group"><label>Given Name</label><input type="text" class="form-control" value="Demo"/></div>
+                  <div class="form-group"><label>Surname</label><input type="text" class="form-control" value="User"/></div>
+                </div>
+                <div class="form-group"><label>Email Address</label><input type="email" class="form-control" value="demo@passport.gov.in" disabled/></div>
+                <div class="form-row cols-2">
+                  <div class="form-group"><label>Mobile Number</label><input type="tel" class="form-control" value="9876543210"/></div>
+                  <div class="form-group"><label>Date of Birth</label><input type="date" class="form-control" value="1990-01-01"/></div>
+                </div>
+                <button class="btn btn-primary" onclick="showToast('Profile updated successfully!','success')">Save Changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: APPLY FORM
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-applyForm">
+  <div class="page-content">
+    <div class="container">
+      <div class="application-container">
+        <div class="flex-between mb-24">
+          <div>
+            <h2 class="section-title" id="applyFormTitle">New Passport Application</h2>
+            <p class="section-sub">Fill in all required fields carefully. Use capital letters.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="showPage('home')">← Back</button>
+        </div>
+
+        <!-- Stepper -->
+        <div class="stepper" id="applySteps">
+          <div class="step active" id="step1">
+            <div class="step-circle">1</div>
+            <div class="step-info"><div class="step-num">Step 1</div><div class="step-label">Personal Info</div></div>
+          </div>
+          <div class="step-connector" id="conn1"></div>
+          <div class="step" id="step2">
+            <div class="step-circle">2</div>
+            <div class="step-info"><div class="step-num">Step 2</div><div class="step-label">Family Details</div></div>
+          </div>
+          <div class="step-connector" id="conn2"></div>
+          <div class="step" id="step3">
+            <div class="step-circle">3</div>
+            <div class="step-info"><div class="step-num">Step 3</div><div class="step-label">Address</div></div>
+          </div>
+          <div class="step-connector" id="conn3"></div>
+          <div class="step" id="step4">
+            <div class="step-circle">4</div>
+            <div class="step-info"><div class="step-num">Step 4</div><div class="step-label">Review & Pay</div></div>
+          </div>
+        </div>
+
+        <!-- Step 1: Personal Info -->
+        <div id="applyStep1">
+          <div class="alert alert-info"><span class="alert-icon">ℹ️</span>Enter details exactly as in your supporting documents. Any mismatch may result in rejection.</div>
+          <div class="form-section">
+            <div class="form-section-header">👤 Personal Information</div>
+            <div class="form-section-body">
+              <div class="form-row cols-3">
+                <div class="form-group"><label>Given Name <span class="req">*</span></label><input type="text" class="form-control" id="f_fname" placeholder="FIRST NAME IN CAPS"/><div class="field-error" id="err_fname">Required</div></div>
+                <div class="form-group"><label>Middle Name</label><input type="text" class="form-control" id="f_mname" placeholder="(if any)"/></div>
+                <div class="form-group"><label>Surname <span class="req">*</span></label><input type="text" class="form-control" id="f_lname" placeholder="SURNAME IN CAPS"/><div class="field-error" id="err_lname">Required</div></div>
+              </div>
+              <div class="form-row cols-2">
+                <div class="form-group">
+                  <label>Gender <span class="req">*</span></label>
+                  <select class="form-control" id="f_gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Transgender</option></select>
+                  <div class="field-error" id="err_gender">Required</div>
+                </div>
+                <div class="form-group"><label>Date of Birth <span class="req">*</span></label><input type="date" class="form-control" id="f_dob"/><div class="field-error" id="err_dob">Required</div></div>
+              </div>
+              <div class="form-row cols-2">
+                <div class="form-group"><label>Place of Birth <span class="req">*</span></label><input type="text" class="form-control" id="f_pob" placeholder="City, State"/><div class="field-error" id="err_pob">Required</div></div>
+                <div class="form-group">
+                  <label>Marital Status <span class="req">*</span></label>
+                  <select class="form-control" id="f_marital"><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select>
+                </div>
+              </div>
+              <div class="form-row cols-2">
+                <div class="form-group"><label>Aadhaar Number</label><input type="text" class="form-control" id="f_aadhaar" placeholder="12-digit Aadhaar" maxlength="12"/></div>
+                <div class="form-group"><label>PAN Number</label><input type="text" class="form-control" id="f_pan" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform:uppercase"/></div>
+              </div>
+              <div class="form-row cols-2">
+                <div class="form-group"><label>Mobile Number <span class="req">*</span></label><input type="tel" class="form-control" id="f_mobile" placeholder="10-digit mobile" maxlength="10"/><div class="field-error" id="err_mobile">Required</div></div>
+                <div class="form-group"><label>Email Address <span class="req">*</span></label><input type="email" class="form-control" id="f_email" placeholder="Valid email"/><div class="field-error" id="err_email">Required</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-header">🛂 Passport Details</div>
+            <div class="form-section-body">
+              <div class="form-row cols-2">
+                <div class="form-group">
+                  <label>Booklet Type <span class="req">*</span></label>
+                  <select class="form-control"><option>36 Pages (Normal)</option><option>60 Pages (Jumbo)</option></select>
+                </div>
+                <div class="form-group">
+                  <label>Validity <span class="req">*</span></label>
+                  <select class="form-control"><option>10 Years</option><option>5 Years (Minor)</option></select>
+                </div>
+              </div>
+              <div class="form-group" id="previousPassportSection">
+                <label>Previous Passport Number (if any)</label>
+                <input type="text" class="form-control" placeholder="Leave blank if first passport"/>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;">
+            <button class="btn btn-primary" onclick="validateStep1()">Next: Family Details →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Family Details -->
+        <div id="applyStep2" style="display:none">
+          <div class="form-section">
+            <div class="form-section-header">👨‍👩‍👧 Family Information</div>
+            <div class="form-section-body">
+              <div class="form-row cols-2">
+                <div class="form-group"><label>Father's Given Name <span class="req">*</span></label><input type="text" class="form-control" id="f_fatherfname" placeholder="Given name"/></div>
+                <div class="form-group"><label>Father's Surname <span class="req">*</span></label><input type="text" class="form-control" id="f_fatherlname" placeholder="Surname"/></div>
+              </div>
+              <div class="form-row cols-2">
+                <div class="form-group"><label>Mother's Given Name <span class="req">*</span></label><input type="text" class="form-control" id="f_motherfname" placeholder="Given name"/></div>
+                <div class="form-group"><label>Mother's Surname <span class="req">*</span></label><input type="text" class="form-control" id="f_motherlname" placeholder="Surname"/></div>
+              </div>
+              <div id="spouseSection">
+                <div class="form-row cols-2">
+                  <div class="form-group"><label>Spouse's Given Name</label><input type="text" class="form-control" placeholder="(if applicable)"/></div>
+                  <div class="form-group"><label>Spouse's Surname</label><input type="text" class="form-control" placeholder="(if applicable)"/></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="form-section-header">🌍 Citizenship Details</div>
+            <div class="form-section-body">
+              <div class="form-group">
+                <label>How did you acquire Indian Citizenship?</label>
+                <div class="radio-group">
+                  <label class="radio-item"><input type="radio" name="citizenship" value="birth" checked/> By Birth</label>
+                  <label class="radio-item"><input type="radio" name="citizenship" value="descent"/> By Descent</label>
+                  <label class="radio-item"><input type="radio" name="citizenship" value="registration"/> By Registration</label>
+                  <label class="radio-item"><input type="radio" name="citizenship" value="naturalization"/> By Naturalisation</label>
+                </div>
+              </div>
+              <div class="form-row cols-2">
+                <div class="form-group"><label>State of Citizenship <span class="req">*</span></label>
+                  <select class="form-control">
+                    <option>Tamil Nadu</option><option>Karnataka</option><option>Maharashtra</option>
+                    <option>Delhi</option><option>West Bengal</option><option>Telangana</option>
+                    <option>Gujarat</option><option>Rajasthan</option><option>Kerala</option>
+                  </select>
+                </div>
+                <div class="form-group"><label>District</label><input type="text" class="form-control" placeholder="Your district"/></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="form-section-header">⚠️ Declaration</div>
+            <div class="form-section-body">
+              <div class="check-item">
+                <input type="checkbox" id="decl1" checked/>
+                <label for="decl1" style="font-size:12px;">I hereby declare that I am a citizen of India and the information given is true to the best of my knowledge.</label>
+              </div>
+              <div class="check-item mt-8">
+                <input type="checkbox" id="decl2"/>
+                <label for="decl2" style="font-size:12px;">I have not been deprived of citizenship of India under Citizenship Act, 1955.</label>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:10px;margin-top:16px;">
+            <button class="btn btn-outline" onclick="goToStep(1)">← Back</button>
+            <button class="btn btn-primary" onclick="goToStep(3)">Next: Address Details →</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Address -->
+        <div id="applyStep3" style="display:none">
+          <div class="form-section">
+            <div class="form-section-header">🏠 Present Residential Address</div>
+            <div class="form-section-body">
+              <div class="form-group"><label>House No. / Flat No. <span class="req">*</span></label><input type="text" class="form-control" id="f_addr1" placeholder="Door no., street"/></div>
+              <div class="form-group"><label>Village / Town / City <span class="req">*</span></label><input type="text" class="form-control" id="f_city" placeholder="City or town"/></div>
+              <div class="form-row cols-3">
+                <div class="form-group"><label>District <span class="req">*</span></label><input type="text" class="form-control" id="f_district" placeholder="District"/></div>
+                <div class="form-group"><label>State <span class="req">*</span></label>
+                  <select class="form-control" id="f_state">
+                    <option>Tamil Nadu</option><option>Karnataka</option><option>Maharashtra</option>
+                    <option>Delhi</option><option>West Bengal</option><option>Telangana</option>
+                  </select>
+                </div>
+                <div class="form-group"><label>PIN Code <span class="req">*</span></label><input type="text" class="form-control" id="f_pin" placeholder="6-digit PIN" maxlength="6"/></div>
+              </div>
+              <div class="form-row cols-2">
+                <div class="form-group"><label>Police Station</label><input type="text" class="form-control" placeholder="Nearest police station"/></div>
+                <div class="form-group"><label>Years at this address</label><input type="number" class="form-control" min="0" max="100" placeholder="0"/></div>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="samePermanent" onchange="togglePermanentAddr(this)"/>
+                <label for="samePermanent" style="font-size:13px;font-weight:500;">Permanent address is same as present address</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section" id="permanentAddrSection">
+            <div class="form-section-header">📌 Permanent Address</div>
+            <div class="form-section-body">
+              <div class="form-group"><label>House No. / Flat No. <span class="req">*</span></label><input type="text" class="form-control" placeholder="Door no., street"/></div>
+              <div class="form-group"><label>Village / Town / City <span class="req">*</span></label><input type="text" class="form-control" placeholder="City or town"/></div>
+              <div class="form-row cols-3">
+                <div class="form-group"><label>District</label><input type="text" class="form-control" placeholder="District"/></div>
+                <div class="form-group"><label>State</label><select class="form-control"><option>Tamil Nadu</option><option>Karnataka</option><option>Maharashtra</option></select></div>
+                <div class="form-group"><label>PIN Code</label><input type="text" class="form-control" placeholder="6-digit PIN" maxlength="6"/></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-header">📄 Document Upload</div>
+            <div class="form-section-body">
+              <div class="alert alert-warning"><span class="alert-icon">📎</span>Upload clear, colour scans. File size limit: 1 MB each. Accepted: JPG, PNG, PDF</div>
+              <div class="form-row cols-2">
+                <div class="form-group"><label>Proof of Date of Birth <span class="req">*</span></label><input type="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf"/></div>
+                <div class="form-group"><label>Proof of Address <span class="req">*</span></label><input type="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf"/></div>
+                <div class="form-group"><label>Photo ID Proof <span class="req">*</span></label><input type="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf"/></div>
+                <div class="form-group"><label>Applicant Photograph <span class="req">*</span></label><input type="file" class="form-control" accept=".jpg,.jpeg,.png"/></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:10px;margin-top:16px;">
+            <button class="btn btn-outline" onclick="goToStep(2)">← Back</button>
+            <button class="btn btn-primary" onclick="goToStep(4)">Next: Review & Pay →</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Review & Pay -->
+        <div id="applyStep4" style="display:none">
+          <div class="alert alert-warning"><span class="alert-icon">⚠️</span>Please review your application carefully before submitting. Once submitted, changes cannot be made.</div>
+
+          <div class="form-section">
+            <div class="form-section-header">📋 Application Summary</div>
+            <div class="form-section-body">
+              <div class="form-row cols-2">
+                <div><strong>Service Type:</strong><br/><span id="review_service" class="text-muted">—</span></div>
+                <div><strong>Applicant Name:</strong><br/><span id="review_name" class="text-muted">—</span></div>
+                <div><strong>Date of Birth:</strong><br/><span id="review_dob" class="text-muted">—</span></div>
+                <div><strong>Gender:</strong><br/><span id="review_gender" class="text-muted">—</span></div>
+                <div><strong>Mobile:</strong><br/><span id="review_mobile" class="text-muted">—</span></div>
+                <div><strong>Email:</strong><br/><span id="review_email" class="text-muted">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-header">📁 Required Documents Checklist</div>
+            <div class="form-section-body">
+              <ul class="doc-checklist" id="docChecklist">
+                <li>Birth Certificate / School Leaving Certificate (Date of Birth proof)</li>
+                <li>Aadhaar Card / Voter ID / Driving Licence (Address proof)</li>
+                <li>Recent passport-size photographs (2 copies)</li>
+                <li>Self-attested copies of all documents</li>
+                <li>Original documents for verification at PSK</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-header">💰 Fee Details</div>
+            <div class="form-section-body">
+              <div class="fee-row"><span>Application Fee</span><span class="bold" id="fee_app">₹1,500</span></div>
+              <div class="fee-row"><span>Speed Post Charges</span><span class="bold">₹50</span></div>
+              <div class="fee-row"><span>GST (18%)</span><span class="bold" id="fee_gst">₹279</span></div>
+              <div class="fee-total"><span>Total Payable</span><span id="fee_total">₹1,829</span></div>
+            </div>
+          </div>
+
+          <div class="check-item mb-16">
+            <input type="checkbox" id="finalDecl"/>
+            <label for="finalDecl" style="font-size:12px;">I confirm that all information provided is accurate and I accept full responsibility for any discrepancy found.</label>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;gap:10px;">
+            <button class="btn btn-outline" onclick="goToStep(3)">← Back</button>
+            <button class="btn btn-green btn-lg" onclick="submitApplication()">✅ Submit & Pay Now</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: TRACK STATUS
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-track">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Track Application Status</h2>
+      <p class="section-sub">Enter your Application Reference Number (ARN) and Date of Birth to track your application.</p>
+
+      <div class="card mb-24">
+        <div class="card-header saffron">🔍 Enter Details</div>
+        <div class="card-body">
+          <div class="form-row cols-2" style="align-items:flex-end">
+            <div class="form-group">
+              <label>Application Reference Number (ARN) <span class="req">*</span></label>
+              <input type="text" class="form-control" id="trackARN" placeholder="e.g. AP25031600001"/>
+            </div>
+            <div class="form-group">
+              <label>Date of Birth <span class="req">*</span></label>
+              <input type="date" class="form-control" id="trackDOB"/>
+            </div>
+            <div class="form-group">
+              <label>Passport Seva Office <span class="req">*</span></label>
+              <select class="form-control" id="trackOffice">
+                <option value="">Select Office</option>
+                <option>Chennai</option><option>Bengaluru</option><option>Mumbai</option>
+                <option>Delhi</option><option>Kolkata</option><option>Hyderabad</option>
+                <option>Pune</option><option>Ahmedabad</option>
+              </select>
+            </div>
+            <div style="padding-bottom:16px">
+              <button class="btn btn-saffron" onclick="doTrack()">🔍 Track Now</button>
+            </div>
+          </div>
+          <div class="alert alert-info" style="margin-bottom:0"><span class="alert-icon">💡</span>Demo: Try ARN <strong>AP25031600001</strong> with any date and office.</div>
+        </div>
+      </div>
+
+      <div id="trackResult" style="display:none">
+        <div class="track-result">
+          <div class="card-header navy">📍 Application Status — <span id="trackARNDisplay"></span></div>
+          <div class="card-body">
+            <div class="form-row cols-3" style="margin-bottom:20px">
+              <div><div class="text-xs text-muted">Applicant Name</div><div class="bold">Demo User</div></div>
+              <div><div class="text-xs text-muted">Service Type</div><div class="bold">Fresh Passport (Normal)</div></div>
+              <div><div class="text-xs text-muted">Applied On</div><div class="bold">16 Mar 2026</div></div>
+              <div><div class="text-xs text-muted">Office</div><div class="bold">Chennai Passport Office</div></div>
+              <div><div class="text-xs text-muted">Current Status</div><div><span class="status-badge status-processing">⚙️ Processing</span></div></div>
+              <div><div class="text-xs text-muted">Expected Date</div><div class="bold">15 Apr 2026</div></div>
+            </div>
+            <div class="progress-bar mb-16"><div class="progress-fill" style="width:45%"></div></div>
+          </div>
+          <div class="track-timeline">
+            <div class="timeline-step">
+              <div class="timeline-dot done">✓</div>
+              <div class="timeline-info">
+                <h4>Application Submitted</h4>
+                <p>Your application was submitted online — 16 Mar 2026, 10:42 AM</p>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot done">✓</div>
+              <div class="timeline-info">
+                <h4>Payment Received</h4>
+                <p>Fee of ₹1,829 received successfully — 16 Mar 2026, 10:45 AM</p>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot done">✓</div>
+              <div class="timeline-info">
+                <h4>Appointment Booked</h4>
+                <p>Appointment scheduled at Chennai PSK, Anna Nagar — 22 Mar 2026, 10:30 AM</p>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot active">⚙</div>
+              <div class="timeline-info">
+                <h4>Document Verification in Progress</h4>
+                <p>Your documents are being verified at the passport office</p>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot">5</div>
+              <div class="timeline-info">
+                <h4>Police Verification</h4>
+                <p>Awaiting police verification from local station</p>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot">6</div>
+              <div class="timeline-info">
+                <h4>Passport Printed & Dispatched</h4>
+                <p>Passport will be dispatched by Speed Post</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: APPOINTMENT
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-appointment">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Book Appointment</h2>
+      <p class="section-sub">Select your Passport Seva Kendra, date, and time slot.</p>
+
+      <div class="two-col">
+        <div>
+          <div class="card mb-24">
+            <div class="card-header navy">📍 Select Passport Seva Kendra</div>
+            <div class="card-body">
+              <div class="form-row cols-2">
+                <div class="form-group">
+                  <label>State <span class="req">*</span></label>
+                  <select class="form-control" id="apptState" onchange="updatePSKs()">
+                    <option value="">Select State</option>
+                    <option>Tamil Nadu</option><option>Karnataka</option><option>Maharashtra</option>
+                    <option>Delhi</option><option>West Bengal</option><option>Telangana</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Passport Seva Kendra <span class="req">*</span></label>
+                  <select class="form-control" id="apptPSK">
+                    <option value="">Select after choosing State</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Service Type <span class="req">*</span></label>
+                <select class="form-control" id="apptService">
+                  <option>Fresh Passport (Normal)</option>
+                  <option>Fresh Passport (Tatkal)</option>
+                  <option>Re-issue of Passport</option>
+                  <option>Police Clearance Certificate</option>
+                  <option>Minor Passport</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calendar -->
+          <div class="card mb-24">
+            <div class="card-header navy">📅 Select Date — <span id="calMonthLabel">March 2026</span></div>
+            <div class="card-body">
+              <div class="flex-between mb-16">
+                <button class="btn btn-outline btn-sm" onclick="changeMonth(-1)">← Prev</button>
+                <span id="calMonthYear" style="font-weight:700;color:var(--navy)">March 2026</span>
+                <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">Next →</button>
+              </div>
+              <div class="calendar-grid">
+                <div class="cal-day-name">Sun</div><div class="cal-day-name">Mon</div>
+                <div class="cal-day-name">Tue</div><div class="cal-day-name">Wed</div>
+                <div class="cal-day-name">Thu</div><div class="cal-day-name">Fri</div>
+                <div class="cal-day-name">Sat</div>
+              </div>
+              <div class="calendar-grid" id="calGrid"></div>
+              <div class="flex gap-12 mt-16 text-xs text-muted">
+                <span>🟦 Available</span><span>⬛ Fully Booked</span><span>🟩 Selected</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time Slots -->
+          <div class="card mb-24" id="timeSlotsCard" style="display:none">
+            <div class="card-header navy">⏰ Select Time Slot — <span id="selectedDateLabel"></span></div>
+            <div class="card-body">
+              <div class="time-slots" id="timeSlots"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+          <div class="card mb-24">
+            <div class="card-header light">📋 Booking Summary</div>
+            <div class="card-body">
+              <div class="fee-row"><span>Office</span><span id="bookSumOffice">—</span></div>
+              <div class="fee-row"><span>Service</span><span id="bookSumService">—</span></div>
+              <div class="fee-row"><span>Date</span><span id="bookSumDate">—</span></div>
+              <div class="fee-row"><span>Time</span><span id="bookSumTime">—</span></div>
+              <hr class="divider"/>
+              <button class="btn btn-primary btn-full" id="confirmApptBtn" onclick="confirmAppointment()" disabled>✅ Confirm Appointment</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header light">📄 Bring These Documents</div>
+            <div class="card-body">
+              <ul style="padding-left:18px;font-size:13px;line-height:2;color:var(--muted)">
+                <li>Printed appointment letter</li>
+                <li>Original Aadhaar Card</li>
+                <li>DOB Proof (original + copy)</li>
+                <li>Address Proof (original + copy)</li>
+                <li>2 passport-size photographs</li>
+                <li>Fee payment receipt</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: OFFICES
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-offices">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Passport Seva Offices</h2>
+      <p class="section-sub">Find your nearest Passport Seva Kendra or Regional Passport Office</p>
+      <div class="form-row cols-3 mb-24">
+        <div class="form-group"><label>Search by City / Pincode</label><input type="text" class="form-control" placeholder="Type city or PIN..." oninput="filterOffices(this.value)"/></div>
+        <div class="form-group"><label>State</label><select class="form-control" onchange="filterOfficesByState(this.value)"><option value="">All States</option><option>Tamil Nadu</option><option>Karnataka</option><option>Maharashtra</option><option>Delhi</option><option>West Bengal</option><option>Telangana</option></select></div>
+        <div class="form-group"><label>Type</label><select class="form-control"><option>All Types</option><option>Passport Seva Kendra (PSK)</option><option>Post Office PSK (POPSK)</option><option>Regional Passport Office (RPO)</option></select></div>
+      </div>
+      <div class="office-cards" id="officesGrid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: FAQ
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-faq">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-sub">Find answers to the most commonly asked questions about passport services</p>
+      <div class="form-group mb-24">
+        <input type="text" class="form-control" placeholder="🔍 Search FAQs..." oninput="filterFaqs(this.value)" style="max-width:400px"/>
+      </div>
+      <div id="faqList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: DOCUMENT ADVISOR
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-docAdvisor">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Document Advisor Tool</h2>
+      <p class="section-sub">Answer a few questions to find out exactly which documents you need</p>
+      <div style="max-width:600px">
+        <div class="card mb-24">
+          <div class="card-header navy">Step 1: Select Service</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>What service are you applying for?</label>
+              <select class="form-control" id="docAdvService" onchange="updateDocList()">
+                <option value="">Select service...</option>
+                <option value="new">Fresh Passport (Adult)</option>
+                <option value="minor">Minor Passport (below 18)</option>
+                <option value="reissue">Re-issue (Expired/Damaged/Lost)</option>
+                <option value="tatkal">Tatkal Passport</option>
+                <option value="pcc">Police Clearance Certificate</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="docAdvisorResult" style="display:none">
+          <div class="card">
+            <div class="card-header green">📄 Required Documents</div>
+            <div class="card-body">
+              <div id="docAdvisorList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: FEE CALCULATOR
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-feeCalc">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Fee Calculator</h2>
+      <p class="section-sub">Calculate the exact fee payable for your passport application</p>
+      <div style="max-width:560px">
+        <div class="card mb-24">
+          <div class="card-header navy">🧮 Select Options</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Service Type <span class="req">*</span></label>
+              <select class="form-control" id="calcService" onchange="calcFee()">
+                <option value="1500">Fresh Passport – 36 pages (Normal)</option>
+                <option value="2000">Fresh Passport – 60 pages (Normal)</option>
+                <option value="3500">Fresh Passport – 36 pages (Tatkal)</option>
+                <option value="4000">Fresh Passport – 60 pages (Tatkal)</option>
+                <option value="1000">Minor Passport – 36 pages</option>
+                <option value="1500">Re-issue of Passport (Normal)</option>
+                <option value="3500">Re-issue of Passport (Tatkal)</option>
+                <option value="500">Police Clearance Certificate</option>
+                <option value="250">Emergency Certificate</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mode of Dispatch</label>
+              <select class="form-control" id="calcDispatch" onchange="calcFee()">
+                <option value="50">Speed Post (₹50)</option>
+                <option value="0">Applicant will collect (₹0)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header saffron">💰 Fee Breakdown</div>
+          <div class="card-body">
+            <div class="fee-row"><span>Application Fee</span><span class="bold" id="calc_app">₹1,500</span></div>
+            <div class="fee-row"><span>Dispatch Charges</span><span class="bold" id="calc_dispatch">₹50</span></div>
+            <div class="fee-row"><span>GST (18%)</span><span class="bold" id="calc_gst">₹279</span></div>
+            <div class="fee-total"><span>Total Amount Payable</span><span id="calc_total">₹1,829</span></div>
+            <div class="mt-16 text-xs text-muted">*Fees are subject to revision. GST applicable as per government norms.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: GRIEVANCE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-grievance">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Grievance Redressal</h2>
+      <p class="section-sub">Submit your grievance and track its resolution status</p>
+      <div class="two-col">
+        <div>
+          <div class="card">
+            <div class="card-header navy">📢 Submit Grievance</div>
+            <div class="card-body">
+              <div class="form-group"><label>ARN / File Number</label><input type="text" class="form-control" placeholder="Your application reference number"/></div>
+              <div class="form-group"><label>Grievance Category <span class="req">*</span></label>
+                <select class="form-control">
+                  <option value="">Select category</option>
+                  <option>Delay in Passport Issuance</option>
+                  <option>Wrong Entry in Passport</option>
+                  <option>Passport Not Received</option>
+                  <option>Appointment Related</option>
+                  <option>Police Verification Delay</option>
+                  <option>Payment Related</option>
+                  <option>Staff Misconduct</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Subject <span class="req">*</span></label><input type="text" class="form-control" placeholder="Brief subject of grievance"/></div>
+              <div class="form-group"><label>Description <span class="req">*</span></label><textarea class="form-control" rows="5" placeholder="Describe your issue in detail..."></textarea></div>
+              <div class="form-row cols-2">
+                <div class="form-group"><label>Your Name <span class="req">*</span></label><input type="text" class="form-control" placeholder="Full name"/></div>
+                <div class="form-group"><label>Mobile Number <span class="req">*</span></label><input type="tel" class="form-control" placeholder="10-digit mobile"/></div>
+              </div>
+              <div class="form-group"><label>Email Address</label><input type="email" class="form-control" placeholder="Optional"/></div>
+              <div class="form-group"><label>Supporting Document</label><input type="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf"/></div>
+              <button class="btn btn-primary btn-full" onclick="submitGrievance()">📩 Submit Grievance</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card mb-24">
+            <div class="card-header light">🔍 Track Grievance Status</div>
+            <div class="card-body">
+              <div class="form-group"><label>Grievance Registration Number</label><input type="text" class="form-control" placeholder="e.g. GR2026031600001"/></div>
+              <button class="btn btn-outline btn-full" onclick="showToast('Grievance ID not found. Please try again.','error')">Track Status</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header light">📞 Escalation Contacts</div>
+            <div class="card-body">
+              <div class="notice-item"><div><strong>National Helpline</strong><br/><span class="text-muted">1800-258-1800 (Toll Free)</span></div></div>
+              <div class="notice-item"><div><strong>CPV Division, MEA</strong><br/><span class="text-muted">consular@mea.gov.in</span></div></div>
+              <div class="notice-item"><div><strong>Online RTI</strong><br/><span class="text-muted">rtionline.gov.in</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: PHOTO GUIDELINES
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-photoGuide">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Photograph Guidelines</h2>
+      <p class="section-sub">Passport photographs must meet these specifications to avoid rejection</p>
+      <div class="two-col">
+        <div>
+          <div class="card mb-24">
+            <div class="card-header navy">✅ Accepted Photo Requirements</div>
+            <div class="card-body">
+              <ul style="padding-left:20px;line-height:2.2;font-size:13px;">
+                <li><strong>Size:</strong> 51mm × 51mm (2 inches × 2 inches)</li>
+                <li><strong>Background:</strong> Plain white or off-white background</li>
+                <li><strong>Face:</strong> Full face, front view, eyes open</li>
+                <li><strong>Head Position:</strong> Centered in frame, 1–1⅓ inch face height</li>
+                <li><strong>Expression:</strong> Neutral, mouth closed</li>
+                <li><strong>Glasses:</strong> Not allowed (since 2016)</li>
+                <li><strong>Head Covering:</strong> Not allowed (except for religious reasons)</li>
+                <li><strong>Print:</strong> Colour photo on matte finish paper</li>
+                <li><strong>Age:</strong> Photo must be taken within last 6 months</li>
+                <li><strong>Infants:</strong> Eyes open, no supporting hand visible</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" style="background:#fee2e2;color:#991b1b">❌ Common Rejection Reasons</div>
+            <div class="card-body">
+              <ul style="padding-left:20px;line-height:2.2;font-size:13px;color:var(--muted)">
+                <li>Blurry, grainy or pixelated photo</li>
+                <li>Shadows on face or background</li>
+                <li>Sunglasses or tinted glasses</li>
+                <li>Hair covering the face or eyes</li>
+                <li>Hat, cap or head covering (non-religious)</li>
+                <li>Edited / digitally altered photo</li>
+                <li>Black & white or sepia toned photo</li>
+                <li>Torn, creased or stapled photo</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card mb-24" style="text-align:center">
+            <div class="card-header navy">📸 Sample Photo</div>
+            <div class="card-body">
+              <!-- SVG illustration of correct vs incorrect photo -->
+              <svg viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">
+                <rect x="10" y="20" width="100" height="120" rx="4" fill="#f0f8ff" stroke="#003580" stroke-width="2"/>
+                <rect x="10" y="20" width="100" height="120" rx="4" fill="#e0e8f0"/>
+                <circle cx="60" cy="65" r="22" fill="#f5d5b0"/>
+                <ellipse cx="60" cy="115" rx="28" ry="18" fill="#4a90d9"/>
+                <circle cx="53" cy="62" r="3" fill="#333"/>
+                <circle cx="67" cy="62" r="3" fill="#333"/>
+                <path d="M 53 74 Q 60 80 67 74" stroke="#a06040" stroke-width="1.5" fill="none"/>
+                <rect x="10" y="140" width="100" height="10" rx="2" fill="#003580"/>
+                <text x="60" y="148" text-anchor="middle" font-size="7" fill="white" font-family="sans-serif">✓ CORRECT</text>
+                <text x="60" y="165" text-anchor="middle" font-size="9" fill="#15803d" font-family="sans-serif" font-weight="bold">ACCEPTED</text>
+
+                <rect x="150" y="20" width="100" height="120" rx="4" fill="#fff0f0" stroke="#dc2626" stroke-width="2"/>
+                <circle cx="200" cy="65" r="22" fill="#f5d5b0"/>
+                <ellipse cx="200" cy="115" rx="28" ry="18" fill="#888"/>
+                <circle cx="193" cy="62" r="3" fill="#333"/>
+                <circle cx="207" cy="62" r="3" fill="#333"/>
+                <!-- sunglasses -->
+                <rect x="185" y="58" width="12" height="8" rx="4" fill="#222" opacity="0.8"/>
+                <rect x="200" y="58" width="12" height="8" rx="4" fill="#222" opacity="0.8"/>
+                <line x1="197" y1="62" x2="200" y2="62" stroke="#333" stroke-width="1.5"/>
+                <rect x="150" y="140" width="100" height="10" rx="2" fill="#dc2626"/>
+                <text x="200" y="148" text-anchor="middle" font-size="7" fill="white" font-family="sans-serif">✗ INCORRECT</text>
+                <text x="200" y="165" text-anchor="middle" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="bold">REJECTED</text>
+              </svg>
+              <p style="font-size:11px;color:var(--muted);margin-top:8px">Left: Accepted &nbsp;|&nbsp; Right: Rejected (glasses)</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header light">📏 Dimension Guide</div>
+            <div class="card-body" style="font-size:12px;">
+              <div class="fee-row"><span>Photo Size</span><span class="bold">51mm × 51mm</span></div>
+              <div class="fee-row"><span>Face Height</span><span class="bold">25–35mm (70–80%)</span></div>
+              <div class="fee-row"><span>Eye Line</span><span class="bold">55–70% from bottom</span></div>
+              <div class="fee-row"><span>Resolution</span><span class="bold">Min. 600 DPI</span></div>
+              <div class="fee-row"><span>File Size (upload)</span><span class="bold">Max 1 MB</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE: CONTACT
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <div class="page-content">
+    <div class="container">
+      <h2 class="section-title">Contact Us</h2>
+      <p class="section-sub">Reach us through multiple channels for support</p>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header navy">📩 Send a Message</div>
+          <div class="card-body">
+            <div class="form-row cols-2">
+              <div class="form-group"><label>Name <span class="req">*</span></label><input type="text" class="form-control" placeholder="Your full name"/></div>
+              <div class="form-group"><label>Mobile <span class="req">*</span></label><input type="tel" class="form-control" placeholder="10-digit number"/></div>
+            </div>
+            <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" class="form-control" placeholder="Your email address"/></div>
+            <div class="form-group"><label>Subject <span class="req">*</span></label>
+              <select class="form-control">
+                <option>General Enquiry</option><option>Application Status</option>
+                <option>Technical Issue</option><option>Fee Related</option>
+                <option>Appointment Issue</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Message <span class="req">*</span></label><textarea class="form-control" rows="5" placeholder="Describe your query..."></textarea></div>
+            <button class="btn btn-primary btn-full" onclick="showToast('Message sent! We will reply within 2 working days.','success')">📤 Send Message</button>
+          </div>
+        </div>
+        <div>
+          <div class="helpline-card mb-24">
+            <div style="font-size:22px;margin-bottom:8px;">📞 Helpline</div>
+            <div class="helpline-number">1800-258-1800</div>
+            <div class="helpline-sub">Toll-Free | Mon–Sat | 8:00 AM – 8:00 PM</div>
+          </div>
+          <div class="card mb-24">
+            <div class="card-header light">🏢 Head Office</div>
+            <div class="card-body" style="font-size:13px;line-height:1.9;color:var(--muted)">
+              <strong style="color:var(--text)">CPV Division</strong><br/>
+              Ministry of External Affairs<br/>
+              Patiala House Annexe<br/>
+              Tilak Marg, New Delhi – 110 001<br/><br/>
+              📧 consular@mea.gov.in<br/>
+              📞 +91-11-2338-6559
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header light">🌐 Social Media</div>
+            <div class="card-body" style="font-size:13px;">
+              <div class="quick-link-list">
+                <a href="#">Twitter / X — @IndianExpress</a>
+                <a href="#">Facebook — Ministry of External Affairs</a>
+                <a href="#">YouTube — MEA India</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-main">
+    <div class="footer-about">
+      <div class="footer-logo">
+        <div style="width:36px;height:36px;flex-shrink:0">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="38" fill="none" stroke="#5a78a8" stroke-width="2"/>
+            <circle cx="40" cy="40" r="4" fill="#7aa0cc"/>
+            <g stroke="#5a78a8" stroke-width="1">
+              <line x1="40" y1="4" x2="40" y2="36"/><line x1="40" y1="44" x2="40" y2="76"/>
+              <line x1="4" y1="40" x2="36" y2="40"/><line x1="44" y1="40" x2="76" y2="40"/>
+            </g>
+          </svg>
+        </div>
+        <h3>Passport Seva</h3>
+      </div>
+      <p>Passport Seva is the National Passport Service of India, managed by the Ministry of External Affairs. It delivers passport and consular services to Indian citizens with efficiency and transparency.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+        <span style="font-size:11px;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:10px;color:#94b4d8">ISO 9001:2015</span>
+        <span style="font-size:11px;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:10px;color:#94b4d8">Digital India Initiative</span>
+      </div>
+    </div>
+    <div>
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#" onclick="showPage('applyForm');setFormType('new')">Apply for Passport</a></li>
+        <li><a href="#" onclick="showPage('track')">Track Application</a></li>
+        <li><a href="#" onclick="showPage('appointment')">Book Appointment</a></li>
+        <li><a href="#" onclick="showPage('applyForm');setFormType('pcc')">PCC Application</a></li>
+        <li><a href="#" onclick="showPage('feeCalc')">Fee Calculator</a></li>
+        <li><a href="#" onclick="showPage('docAdvisor')">Document Advisor</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Important Links</h4>
+      <ul>
+        <li><a href="#">Ministry of External Affairs</a></li>
+        <li><a href="#">India.gov.in</a></li>
+        <li><a href="#">DigiLocker</a></li>
+        <li><a href="#">UIDAI / Aadhaar</a></li>
+        <li><a href="#">National Portal of India</a></li>
+        <li><a href="#">eVisa India</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#" onclick="showPage('faq')">FAQs</a></li>
+        <li><a href="#" onclick="showPage('grievance')">Grievances</a></li>
+        <li><a href="#" onclick="showPage('contact')">Contact Us</a></li>
+        <li><a href="#" onclick="showPage('photoGuide')">Photo Guidelines</a></li>
+        <li><a href="#">Sitemap</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="tricolour"></div>
+  <div class="footer-bottom">
+    Website Last Updated: 16 March 2026 &nbsp;|&nbsp; Best viewed in Chrome, Edge, Firefox &nbsp;|&nbsp;
+    <a href="#">Accessibility</a> <a href="#">Terms</a> <a href="#">Privacy</a>
+    &nbsp;|&nbsp; © 2026 Ministry of External Affairs, Government of India
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════════ -->
+<script>
+/* ─── STATE ─────────────────────────────────────────── */
+const state = {
+  loggedIn: false,
+  user: null,
+  currentStep: 1,
+  formType: 'new',
+  calMonth: 2, // March = 2 (0-indexed)
+  calYear: 2026,
+  selectedDate: null,
+  selectedTime: null,
+  selectedOffice: null
+};
+
+const DEMO_EMAIL = 'demo@passport.gov.in';
+const DEMO_PASS = 'Demo@1234';
+
+/* ─── PAGE NAV ──────────────────────────────────────── */
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId)?.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Update nav active
+  document.querySelectorAll('.nav-item > a').forEach(a => a.classList.remove('active'));
+  if (pageId === 'home') document.getElementById('navHome')?.classList.add('active');
+  // Special inits
+  if (pageId === 'appointment') initCalendar();
+  if (pageId === 'offices') renderOffices('');
+  if (pageId === 'faq') renderFaqs('');
+  if (pageId === 'feeCalc') calcFee();
+}
+
+/* ─── MODAL ─────────────────────────────────────────── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+/* ─── TOAST ─────────────────────────────────────────── */
+function showToast(msg, type = 'info') {
+  const tc = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span>${msg}`;
+  tc.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+/* ─── FONT SIZE ─────────────────────────────────────── */
+let baseFontSize = 14;
+function adjustFont(dir) {
+  if (dir === 0) baseFontSize = 14;
+  else baseFontSize = Math.max(12, Math.min(18, baseFontSize + dir * 1));
+  document.body.style.fontSize = baseFontSize + 'px';
+}
+
+/* ─── LANG TOGGLE ───────────────────────────────────── */
+function toggleLang() { showToast('Hindi interface coming soon!', 'info'); }
+
+/* ─── LOGIN ─────────────────────────────────────────── */
+function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+  let ok = true;
+  if (!email) { showErr('loginEmailErr'); ok=false; }
+  if (!pass) { showErr('loginPassErr'); ok=false; }
+  if (!ok) return;
+  if (email === DEMO_EMAIL && pass === DEMO_PASS) {
+    loginSuccess({ name: 'Demo User', email });
+    closeModal('loginModal');
+  } else {
+    showToast('Invalid credentials. Try: demo@passport.gov.in / Demo@1234', 'error');
+  }
+}
+function doAadhaarLogin() {
+  closeModal('loginModal');
+  openModal('otpModal');
+}
+function loginSuccess(user) {
+  state.loggedIn = true;
+  state.user = user;
+  const firstName = user.name.split(' ')[0];
+  document.getElementById('headerLoggedOut').style.display = 'none';
+  document.getElementById('headerLoggedIn').style.display = 'flex';
+  document.getElementById('headerUserName').textContent = firstName;
+  document.getElementById('dashUserName').textContent = user.name;
+  document.getElementById('dashUserEmail').textContent = user.email;
+  document.getElementById('dashGreetName').textContent = firstName;
+  showToast(`Welcome back, ${firstName}! 🎉`, 'success');
+  showPage('dashboard');
+}
+function doLogout() {
+  state.loggedIn = false; state.user = null;
+  document.getElementById('headerLoggedOut').style.display = 'block';
+  document.getElementById('headerLoggedIn').style.display = 'none';
+  showToast('You have been logged out.', 'info');
+  showPage('home');
+}
+
+/* ─── REGISTER ──────────────────────────────────────── */
+function doRegister() {
+  const fname = document.getElementById('regFname').value;
+  const email = document.getElementById('regEmail').value;
+  const pass = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  const terms = document.getElementById('regTerms').checked;
+  if (!fname || !email || !pass) { showToast('Please fill all required fields.','error'); return; }
+  if (pass !== pass2) { showToast('Passwords do not match.','error'); return; }
+  if (!terms) { showToast('Please accept the Terms of Service.','error'); return; }
+  closeModal('registerModal');
+  openModal('otpModal');
+}
+
+/* ─── OTP ───────────────────────────────────────────── */
+function moveOtp(el, nextId) {
+  if (el.value.length === 1 && nextId) document.getElementById(nextId)?.focus();
+}
+function verifyOtp() {
+  const otp = ['otp1','otp2','otp3','otp4','otp5','otp6'].map(id => document.getElementById(id).value).join('');
+  if (otp === '123456') {
+    closeModal('otpModal');
+    loginSuccess({ name: 'Demo User', email: DEMO_EMAIL });
+  } else {
+    showToast('Incorrect OTP. Use 123456 for demo.','error');
+  }
+}
+
+/* ─── SHOW/HIDE FIELD ERRORS ─────────────────────────── */
+function showErr(id) { const el = document.getElementById(id); if(el){ el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),3000); } }
+
+/* ─── DASHBOARD TABS ────────────────────────────────── */
+function showDashTab(tab) {
+  ['overview','applications','appointments','documents','profile'].forEach(t => {
+    const c = document.getElementById('dtabContent-'+t);
+    const a = document.getElementById('dtab-'+t);
+    if(c) c.style.display = t===tab ? 'flex' : 'none';
+    // handle non-flex tabs
+    if(c && t === tab && t !== 'overview') c.style.display = 'block';
+    if(a) a.classList.toggle('active', t===tab);
+  });
+  if(tab==='overview') document.getElementById('dtabContent-overview').style.display='block';
+}
+
+/* ─── APPLY FORM ─────────────────────────────────────── */
+function setFormType(type) {
+  state.formType = type;
+  const titles = {
+    new:'Fresh Passport Application', reissue:'Re-issue of Passport',
+    tatkal:'Tatkal Passport Application', minor:'Minor Passport Application',
+    pcc:'Police Clearance Certificate (PCC)', emergency:'Emergency Certificate Application'
+  };
+  document.getElementById('applyFormTitle').textContent = titles[type] || 'Passport Application';
+  goToStep(1);
+}
+
+function goToStep(n) {
+  for(let i=1;i<=4;i++){
+    document.getElementById('applyStep'+i).style.display = i===n ? 'block' : 'none';
+    const step = document.getElementById('step'+i);
+    step.className = 'step';
+    if(i<n) { step.className='step done'; step.querySelector('.step-circle').textContent='✓'; }
+    else if(i===n) { step.className='step active'; step.querySelector('.step-circle').textContent=i; }
+    else { step.querySelector('.step-circle').textContent=i; }
+    if(i<4) {
+      const conn = document.getElementById('conn'+i);
+      conn.className = 'step-connector' + (i<n?' done':'');
+    }
+  }
+  state.currentStep = n;
+  if(n===4) populateReview();
+  window.scrollTo({ top: 200, behavior: 'smooth' });
+}
+
+function validateStep1() {
+  const fields = [
+    {id:'f_fname', err:'err_fname'},
+    {id:'f_lname', err:'err_lname'},
+    {id:'f_gender', err:'err_gender'},
+    {id:'f_dob', err:'err_dob'},
+    {id:'f_pob', err:'err_pob'},
+    {id:'f_mobile', err:'err_mobile'},
+    {id:'f_email', err:'err_email'},
+  ];
+  let ok = true;
+  fields.forEach(f => {
+    const v = document.getElementById(f.id)?.value;
+    if(!v) { showErr(f.err); ok=false; }
+  });
+  if(ok) goToStep(2);
+}
+
+function populateReview() {
+  const serviceNames = {new:'Fresh Passport (Normal)',reissue:'Re-issue of Passport',tatkal:'Tatkal (Urgent)',minor:'Minor Passport',pcc:'Police Clearance Certificate',emergency:'Emergency Certificate'};
+  document.getElementById('review_service').textContent = serviceNames[state.formType] || state.formType;
+  const fname = document.getElementById('f_fname')?.value || '';
+  const lname = document.getElementById('f_lname')?.value || '';
+  document.getElementById('review_name').textContent = [fname, lname].filter(Boolean).join(' ') || '—';
+  document.getElementById('review_dob').textContent = document.getElementById('f_dob')?.value || '—';
+  document.getElementById('review_gender').textContent = document.getElementById('f_gender')?.value || '—';
+  document.getElementById('review_mobile').textContent = document.getElementById('f_mobile')?.value || '—';
+  document.getElementById('review_email').textContent = document.getElementById('f_email')?.value || '—';
+  const fees = {new:1500,reissue:1500,tatkal:3500,minor:1000,pcc:500,emergency:250};
+  const fee = fees[state.formType] || 1500;
+  const gst = Math.round((fee+50)*0.18);
+  document.getElementById('fee_app').textContent = '₹'+fee.toLocaleString('en-IN');
+  document.getElementById('fee_gst').textContent = '₹'+gst.toLocaleString('en-IN');
+  document.getElementById('fee_total').textContent = '₹'+(fee+50+gst).toLocaleString('en-IN');
+}
+
+function submitApplication() {
+  if(!document.getElementById('finalDecl').checked) {
+    showToast('Please confirm the declaration to proceed.','error'); return;
+  }
+  openModal('payModal');
+}
+
+function processPayment() {
+  closeModal('payModal');
+  const arn = 'AP' + Date.now().toString().slice(-11);
+  showToast('Payment successful! ARN: '+arn, 'success');
+  setTimeout(() => {
+    showPage('track');
+    document.getElementById('trackARN').value = arn;
+  }, 1500);
+}
+
+function togglePermanentAddr(el) {
+  document.getElementById('permanentAddrSection').style.display = el.checked ? 'none' : 'block';
+}
+
+/* ─── TRACK ─────────────────────────────────────────── */
+function doTrack() {
+  const arn = document.getElementById('trackARN').value;
+  const dob = document.getElementById('trackDOB').value;
+  const office = document.getElementById('trackOffice').value;
+  if(!arn || !dob || !office) { showToast('Please fill all fields.','error'); return; }
+  document.getElementById('trackARNDisplay').textContent = arn;
+  document.getElementById('trackResult').style.display = 'block';
+  document.getElementById('trackResult').scrollIntoView({behavior:'smooth'});
+}
+
+/* ─── CALENDAR ──────────────────────────────────────── */
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function initCalendar() {
+  state.calMonth = 2; state.calYear = 2026;
+  renderCalendar();
+}
+function changeMonth(dir) {
+  state.calMonth += dir;
+  if(state.calMonth > 11){ state.calMonth=0; state.calYear++; }
+  if(state.calMonth < 0){ state.calMonth=11; state.calYear--; }
+  renderCalendar();
+}
+function renderCalendar() {
+  const label = MONTHS[state.calMonth] + ' ' + state.calYear;
+  document.getElementById('calMonthYear').textContent = label;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const firstDay = new Date(state.calYear, state.calMonth, 1).getDay();
+  const daysInMonth = new Date(state.calYear, state.calMonth+1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const fullDays = [4,8,15,19,23,27];
+  for(let i=0;i<firstDay;i++){
+    const d=document.createElement('div'); d.className='cal-day empty'; grid.appendChild(d);
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const cell = document.createElement('div');
+    const date = new Date(state.calYear, state.calMonth, d);
+    const isWeekend = date.getDay()===0 || date.getDay()===6;
+    const isPast = date < today;
+    const isFull = fullDays.includes(d);
+    const isToday = date.getTime()===today.getTime();
+    if(isPast||isWeekend){ cell.className='cal-day full'; }
+    else if(isFull){ cell.className='cal-day full'; }
+    else { cell.className='cal-day available' + (isToday?' today':''); }
+    if(state.selectedDate && state.selectedDate.getTime()===date.getTime()) cell.className='cal-day selected';
+    cell.textContent=d;
+    if(!isPast&&!isWeekend&&!isFull){
+      cell.onclick=()=>selectDate(date, cell);
+    }
+    grid.appendChild(cell);
+  }
+}
+function selectDate(date, cell) {
+  state.selectedDate = date;
+  document.querySelectorAll('.cal-day').forEach(c=>{ if(c.classList.contains('available')||c.classList.contains('selected')) c.classList.replace('selected','available') || true; });
+  cell.className='cal-day selected';
+  const label = date.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('selectedDateLabel').textContent = label;
+  document.getElementById('bookSumDate').textContent = label;
+  renderTimeSlots();
+  document.getElementById('timeSlotsCard').style.display='block';
+}
+const TIMES = ['09:00 AM','09:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','12:00 PM','12:30 PM','02:00 PM','02:30 PM','03:00 PM','03:30 PM'];
+const BOOKED_TIMES = ['09:30 AM','11:00 AM','02:00 PM'];
+function renderTimeSlots() {
+  const ts = document.getElementById('timeSlots');
+  ts.innerHTML = '';
+  TIMES.forEach(t => {
+    const slot = document.createElement('div');
+    const isBooked = BOOKED_TIMES.includes(t);
+    slot.className = 'time-slot ' + (isBooked?'booked':'available');
+    if(state.selectedTime===t) slot.className='time-slot selected';
+    slot.textContent = t;
+    if(!isBooked) slot.onclick=()=>selectTime(t, slot);
+    ts.appendChild(slot);
+  });
+}
+function selectTime(t, el) {
+  state.selectedTime = t;
+  document.querySelectorAll('.time-slot.available,.time-slot.selected').forEach(s=>s.classList.replace('selected','available')||true);
+  el.className='time-slot selected';
+  document.getElementById('bookSumTime').textContent = t;
+  updateApptSummary();
+}
+function updateApptSummary() {
+  const psk = document.getElementById('apptPSK').value;
+  const svc = document.getElementById('apptService').value;
+  if(psk) document.getElementById('bookSumOffice').textContent = psk;
+  if(svc) document.getElementById('bookSumService').textContent = svc;
+  state.selectedOffice = psk;
+  const btn = document.getElementById('confirmApptBtn');
+  btn.disabled = !(state.selectedDate && state.selectedTime && psk);
+}
+function updatePSKs() {
+  const state_val = document.getElementById('apptState').value;
+  const psk = document.getElementById('apptPSK');
+  const pskMap = {
+    'Tamil Nadu': ['Chennai PSK, Anna Nagar','Chennai PSK, Taramani','Coimbatore POPSK','Madurai POPSK'],
+    'Karnataka': ['Bengaluru PSK, Rajajinagar','Bengaluru PSK, Marathahalli','Mysuru POPSK'],
+    'Maharashtra': ['Mumbai PSK, Malad','Mumbai PSK, Worli','Pune PSK','Nagpur POPSK'],
+    'Delhi': ['Delhi PSK, Sector-62 Noida','Delhi PSK, Dwarka','Delhi PSK, Saket'],
+    'West Bengal': ['Kolkata PSK, Salt Lake','Kolkata PSK, Topsia'],
+    'Telangana': ['Hyderabad PSK, Secunderabad','Hyderabad PSK, Suchitra Circle'],
+  };
+  psk.innerHTML='<option value="">Select PSK</option>';
+  (pskMap[state_val]||[]).forEach(p=>{
+    const o=document.createElement('option'); o.value=p; o.textContent=p; psk.appendChild(o);
+  });
+}
+function confirmAppointment() {
+  if(!state.loggedIn){ closeModal('apptModal'); openModal('loginModal'); showToast('Please login to book an appointment.','info'); return; }
+  if(!state.selectedDate||!state.selectedTime||!state.selectedOffice){ showToast('Please select date, time and office.','error'); return; }
+  const arn = 'AP'+Date.now().toString().slice(-11);
+  const token = '#T-0'+Math.floor(Math.random()*99+10);
+  document.getElementById('apptOffice').textContent = state.selectedOffice;
+  document.getElementById('apptDate').textContent = state.selectedDate.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('apptTime').textContent = state.selectedTime;
+  document.getElementById('apptToken').textContent = token;
+  document.getElementById('apptARN').textContent = arn;
+  openModal('apptModal');
+}
+
+/* ─── OFFICES ────────────────────────────────────────── */
+const officesData = [
+  { name:'Chennai RPO', type:'RPO', city:'Chennai', state:'Tamil Nadu', address:'Shastri Bhavan, 26 Haddows Road, Chennai – 600006', phone:'044-28270226' },
+  { name:'Chennai PSK, Anna Nagar', type:'PSK', city:'Chennai', state:'Tamil Nadu', address:'Shop No. 6, G Block, Anna Nagar East, Chennai – 600102', phone:'1800-258-1800' },
+  { name:'Bengaluru RPO', type:'RPO', city:'Bengaluru', state:'Karnataka', address:'Kendriya Sadan, Koramangala, Bengaluru – 560034', phone:'080-25660400' },
+  { name:'Mumbai RPO', type:'RPO', city:'Mumbai', state:'Maharashtra', address:'Passport Sewa Bhavan, Andheri East, Mumbai – 400069', phone:'022-26681111' },
+  { name:'Delhi RPO', type:'RPO', city:'New Delhi', state:'Delhi', address:'Bhikaji Cama Place, New Delhi – 110 066', phone:'011-26182450' },
+  { name:'Kolkata RPO', type:'RPO', city:'Kolkata', state:'West Bengal', address:'37/2 C.I.T. Road, Kolkata – 700014', phone:'033-22136630' },
+  { name:'Hyderabad RPO', type:'RPO', city:'Hyderabad', state:'Telangana', address:'Block B, BRK Bhavan, Tankbund Road, Hyderabad – 500022', phone:'040-23220520' },
+  { name:'Pune PSK', type:'PSK', city:'Pune', state:'Maharashtra', address:'Amar Sigma IT Park, Baner, Pune – 411045', phone:'1800-258-1800' },
+  { name:'Ahmedabad RPO', type:'RPO', city:'Ahmedabad', state:'Gujarat', address:'Nirman Bhavan, Sector-10A, Gandhinagar – 382010', phone:'079-23256101' },
+  { name:'Jaipur PSK', type:'PSK', city:'Jaipur', state:'Rajasthan', address:'Plot No. E-3, Pankaj Singhvi Marg, Jaipur – 302001', phone:'1800-258-1800' },
+  { name:'Lucknow RPO', type:'RPO', city:'Lucknow', state:'Uttar Pradesh', address:'8 Sapru Marg, Lucknow – 226001', phone:'0522-2620350' },
+  { name:'Chandigarh RPO', type:'RPO', city:'Chandigarh', state:'Chandigarh', address:'Plot No. 35, Industrial Area Phase – I, Chandigarh – 160002', phone:'0172-2703600' },
+];
+function renderOffices(query) {
+  const grid = document.getElementById('officesGrid');
+  if(!grid) return;
+  const filtered = officesData.filter(o =>
+    o.name.toLowerCase().includes(query.toLowerCase()) ||
+    o.city.toLowerCase().includes(query.toLowerCase()) ||
+    o.state.toLowerCase().includes(query.toLowerCase())
+  );
+  grid.innerHTML = filtered.map(o=>`
+    <div class="office-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <h4>${o.name}</h4>
+        <span class="office-tag">${o.type}</span>
+      </div>
+      <p>📍 ${o.address}</p>
+      <p style="margin-top:6px">📞 ${o.phone}</p>
+      <p style="margin-top:4px">🏙️ ${o.city}, ${o.state}</p>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="showPage('appointment')">Book Appointment</button>
+    </div>
+  `).join('');
+  if(!filtered.length) grid.innerHTML = '<p class="text-muted" style="padding:20px">No offices found matching your search.</p>';
+}
+function filterOffices(q) { renderOffices(q); }
+function filterOfficesByState(s) { renderOffices(s); }
+
+/* ─── FAQs ───────────────────────────────────────────── */
+const faqData = [
+  { q:'How do I apply for a new passport?', a:'Register on the Passport Seva portal, fill the online application form, pay the fee, and book an appointment at your nearest PSK. Attend the PSK with original documents on the appointment date.' },
+  { q:'What is the fee for a fresh passport?', a:'Fresh Passport (36 pages, Normal) costs ₹1,500 + ₹50 Speed Post + GST. Tatkal costs ₹3,500. Minor passport is ₹1,000. Use the Fee Calculator on this portal for exact amounts.' },
+  { q:'How long does it take to get a passport?', a:'Normal applications typically take 30-45 days after successful police verification. Tatkal applications are processed within 7-14 working days with priority processing.' },
+  { q:'What documents do I need for a fresh passport?', a:'Proof of Date of Birth (Birth Certificate/School Certificate), Proof of Address (Aadhaar/Voter ID/Utility bills), and recent passport-size photographs. Use the Document Advisor tool for a personalized checklist.' },
+  { q:'Can I track my passport application online?', a:'Yes! Use the "Track Application Status" section on the homepage or the Track Status page. Enter your ARN (Application Reference Number) and Date of Birth to check real-time status.' },
+  { q:'What is the Tatkal scheme?', a:'Tatkal is an emergency/urgent passport processing scheme. It costs ₹2,000 extra over the normal fee and processes within 7-14 days. Additional document verification may be required.' },
+  { q:'How do I book a PSK appointment?', a:'After completing the online application and paying the fee, go to "Book Appointment", select your state, choose a PSK, pick an available date and time slot, and confirm.' },
+  { q:'My passport is expiring. How do I re-issue?', a:'Apply for Re-issue under "Apply Online". You can re-issue up to 1 year before expiry. Submit the old passport along with address and identity proof.' },
+  { q:'What if I lose my passport?', a:'Immediately report the loss to the nearest police station and obtain an FIR. Then apply for Re-issue of Passport (Reason: Lost/Stolen) on this portal with the FIR copy.' },
+  { q:'Is Aadhaar mandatory for passport application?', a:'Aadhaar is not mandatory but is accepted as address and identity proof. Providing Aadhaar may expedite police verification through the National Database.' },
+  { q:'Can a minor get a passport?', a:'Yes. Minors can get a passport valid for 5 years or until they turn 18. Both parents must be present at PSK, or a consent letter from the absent parent is required.' },
+  { q:'What is a Police Clearance Certificate (PCC)?', a:'PCC is a document issued by the passport office certifying that the applicant has no criminal record. It is required for immigration, employment abroad, and foreign residency applications.' },
+];
+function renderFaqs(query) {
+  const container = document.getElementById('faqList');
+  if(!container) return;
+  const filtered = faqData.filter(f =>
+    f.q.toLowerCase().includes(query.toLowerCase()) ||
+    f.a.toLowerCase().includes(query.toLowerCase())
+  );
+  container.innerHTML = filtered.map((f,i)=>`
+    <div class="faq-item" id="faqItem${i}">
+      <div class="faq-q" onclick="toggleFaq(${i})">
+        <span>${f.q}</span>
+        <span class="faq-arrow">▼</span>
+      </div>
+      <div class="faq-a" id="faqAns${i}">${f.a}</div>
+    </div>
+  `).join('');
+}
+function toggleFaq(i) {
+  const item = document.getElementById('faqItem'+i);
+  const ans = document.getElementById('faqAns'+i);
+  const isOpen = ans.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(a=>a.classList.remove('open'));
+  document.querySelectorAll('.faq-item').forEach(a=>a.classList.remove('open'));
+  if(!isOpen){ ans.classList.add('open'); item.classList.add('open'); }
+}
+function filterFaqs(q) { renderFaqs(q); }
+
+/* ─── DOC ADVISOR ─────────────────────────────────────── */
+const docData = {
+  new: [
+    '✅ Birth Certificate / School Leaving Certificate (DOB proof)',
+    '✅ Aadhaar Card / Voter ID / Driving Licence (Address proof)',
+    '✅ 2 recent passport-size colour photographs (51mm × 51mm)',
+    '✅ Self-attested copies of all documents',
+    '✅ Proof of educational qualification (if available)',
+  ],
+  minor: [
+    '✅ Birth Certificate (mandatory for minors)',
+    '✅ Parent\'s valid passport copies',
+    '✅ School ID card or bonafide certificate',
+    '✅ Consent letter if only one parent present',
+    '✅ 2 recent passport-size photographs of the minor',
+    '✅ Aadhaar card of the minor (if available)',
+  ],
+  reissue: [
+    '✅ Original old passport (submit at PSK)',
+    '✅ Self-attested copy of first and last 2 pages of old passport',
+    '✅ Address proof (Aadhaar / Utility bill)',
+    '✅ 2 recent passport-size colour photographs',
+    '✅ FIR copy (if passport is lost/stolen)',
+  ],
+  tatkal: [
+    '✅ All documents required for Normal passport',
+    '✅ Verification certificate from BDO/SDM/Tehsildar/MP/MLA',
+    '✅ Proof of urgency (travel ticket, medical, employment letter)',
+    '✅ Annexed F form (if applicable)',
+  ],
+  pcc: [
+    '✅ Original and copy of current valid passport',
+    '✅ Proof of present address',
+    '✅ Employment/Visa/Immigration proof (reason for PCC)',
+    '✅ 2 passport-size photographs',
+  ],
+};
+function updateDocList() {
+  const type = document.getElementById('docAdvService').value;
+  const result = document.getElementById('docAdvisorResult');
+  if(!type){ result.style.display='none'; return; }
+  result.style.display='block';
+  document.getElementById('docAdvisorList').innerHTML = (docData[type]||[]).map(d=>`<div style="padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px;">${d}</div>`).join('');
+}
+
+/* ─── FEE CALCULATOR ─────────────────────────────────── */
+function calcFee() {
+  const svcEl = document.getElementById('calcService');
+  const dispEl = document.getElementById('calcDispatch');
+  if(!svcEl||!dispEl) return;
+  const fee = parseInt(svcEl.value)||1500;
+  const disp = parseInt(dispEl.value)||50;
+  const gst = Math.round((fee+disp)*0.18);
+  document.getElementById('calc_app').textContent = '₹'+fee.toLocaleString('en-IN');
+  document.getElementById('calc_dispatch').textContent = '₹'+disp;
+  document.getElementById('calc_gst').textContent = '₹'+gst.toLocaleString('en-IN');
+  document.getElementById('calc_total').textContent = '₹'+(fee+disp+gst).toLocaleString('en-IN');
+}
+
+/* ─── GRIEVANCE ──────────────────────────────────────── */
+function submitGrievance() {
+  const grn = 'GR'+Date.now().toString().slice(-11);
+  showToast(`Grievance registered! GRN: ${grn}. We will respond within 7 working days.`, 'success');
+}
+
+/* ─── INIT ─────────────────────────────────────────────── */
+(function init() {
+  showPage('home');
+  calcFee();
+})();
+</script>
+</body>
+</html>
