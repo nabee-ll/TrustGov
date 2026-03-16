@@ -14,22 +14,48 @@ interface FabricSubmitResponse {
   message?: string;
 }
 
-let hasCheckedNetwork = false;
+type VerificationMode = 'fabric-bridge' | 'amb-verify' | 'amb-fallback';
 
-const maybeCheckAmbNetwork = async () => {
+interface IntegrityLogResult {
+  hash: string;
+  blockchainTxId: string;
+  verificationMode: VerificationMode;
+  blockchainVerified: boolean;
+}
+
+let ambCheckAttempted = false;
+let ambNetworkVerified = false;
+
+const isTrue = (value?: string) => (value || '').toLowerCase() === 'true';
+
+const getBlockchainMode = () => (process.env.BLOCKCHAIN_MODE || 'demo').toLowerCase();
+
+const maybeCheckAmbNetwork = async (): Promise<{ verified: boolean; reason?: string }> => {
   const region = process.env.AWS_REGION;
   const networkId = process.env.AMB_NETWORK_ID;
 
-  if (!region || !networkId || hasCheckedNetwork) return;
+  if (!region || !networkId) {
+    return { verified: false, reason: 'AWS_REGION or AMB_NETWORK_ID is missing.' };
+  }
+
+  if (ambCheckAttempted) {
+    return {
+      verified: ambNetworkVerified,
+      reason: ambNetworkVerified ? undefined : 'Previous AMB verification attempt failed.',
+    };
+  }
 
   try {
+    ambCheckAttempted = true;
     const client = new ManagedBlockchainClient({ region });
     await client.send(new GetNetworkCommand({ NetworkId: networkId }));
-    hasCheckedNetwork = true;
+    ambNetworkVerified = true;
+    return { verified: true };
   } catch (error) {
-    // Keep request flow non-blocking for demo mode when AMB credentials/network are unavailable.
-    hasCheckedNetwork = true;
-    console.warn('[AMB] Network check failed, continuing in demo integrity mode.');
+    ambCheckAttempted = true;
+    ambNetworkVerified = false;
+    const message = error instanceof Error ? error.message : 'Unknown AMB error';
+    return { verified: false, reason: message };
   }
 };
 
@@ -74,24 +100,54 @@ const submitToFabricBridge = async (input: IntegrityRecordInput, hash: string): 
   return txId;
 };
 
-export const logIntegrityRecord = async (input: IntegrityRecordInput) => {
+export const logIntegrityRecord = async (input: IntegrityRecordInput): Promise<IntegrityLogResult> => {
   const payload = `${input.userId}:${input.serviceId}:${input.timestamp}`;
   const hash = crypto.createHash('sha256').update(payload).digest('hex');
 
-  try {
-    const fabricTxId = await submitToFabricBridge(input, hash);
-    if (fabricTxId) {
-      return { hash, blockchainTxId: fabricTxId };
+  const mode = getBlockchainMode();
+  const fabricStrict = isTrue(process.env.FABRIC_BRIDGE_REQUIRED);
+  const ambStrict = isTrue(process.env.AMB_STRICT);
+
+  const shouldTryFabric = Boolean(process.env.FABRIC_SUBMIT_URL) || mode === 'fabric' || mode === 'fabric-bridge';
+
+  if (shouldTryFabric) {
+    try {
+      const fabricTxId = await submitToFabricBridge(input, hash);
+      if (fabricTxId) {
+        return {
+          hash,
+          blockchainTxId: fabricTxId,
+          verificationMode: 'fabric-bridge',
+          blockchainVerified: true,
+        };
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown Fabric error';
+      if (fabricStrict || mode === 'fabric' || mode === 'fabric-bridge') {
+        throw new Error(`[FABRIC] Submit failed in strict mode. ${message}`);
+      }
+      console.warn(`[FABRIC] Submit failed, falling back to local reference. ${message}`);
     }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown Fabric error';
-    console.warn(`[FABRIC] Submit failed, falling back to local reference. ${message}`);
   }
 
-  await maybeCheckAmbNetwork();
+  const ambStatus = await maybeCheckAmbNetwork();
+  if (!ambStatus.verified) {
+    if (ambStrict || mode === 'amb' || mode === 'amb-verify') {
+      throw new Error(`[AMB] Network verification failed. ${ambStatus.reason || ''}`.trim());
+    }
+    console.warn(`[AMB] Network check failed, continuing in demo integrity mode. ${ambStatus.reason || ''}`.trim());
+  }
 
   // Fallback for hackathon/dev flow when Fabric submit endpoint is not configured.
-  const blockchainTxId = `AMB-${Date.now()}-${hash.slice(0, 12)}`;
+  const prefix = ambStatus.verified ? 'AMB-VERIFIED' : 'AMB';
+  const blockchainTxId = `${prefix}-${Date.now()}-${hash.slice(0, 12)}`;
 
-  return { hash, blockchainTxId };
+  const verificationMode: VerificationMode = ambStatus.verified ? 'amb-verify' : 'amb-fallback';
+
+  return {
+    hash,
+    blockchainTxId,
+    verificationMode,
+    blockchainVerified: ambStatus.verified,
+  };
 };

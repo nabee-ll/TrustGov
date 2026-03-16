@@ -61,10 +61,7 @@ export default function Header() {
                 <button className="btn-logout" onClick={handleLogout}>Logout</button>
               </>
             ) : (
-              <>
-                <button className="btn-register" onClick={() => navigate('/register')}>Register</button>
-                <button className="btn-login" onClick={() => navigate('/login')}>Login</button>
-              </>
+              <button className="btn-register" onClick={() => navigate('/dashboard')}>Dashboard</button>
             )}
           </div>
         </div>
