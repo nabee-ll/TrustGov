@@ -1,10 +1,4 @@
-const mongoose = require("mongoose");
-
-const mongoURI = mongoose.connect("mongodb+srv://nabeels2024csecs_db_user:4R7nXi5O2npMeZQC@trustgov.8yuza0i.mongodb.net/trustgov?retryWrites=true&w=majority");
-
-mongoose.connect(mongoURI)
-  .then(() => console.log("MongoDB Atlas Connected"))
-  .catch(err => console.log(err));
+// In-memory store is used (db.js) — no external DB required
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
