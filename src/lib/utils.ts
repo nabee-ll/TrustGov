@@ -8,7 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export interface User {
   id: string;
+  userId: string;
   name: string;
+  email?: string;
+  phone?: string;
 }
 
 export interface Service {

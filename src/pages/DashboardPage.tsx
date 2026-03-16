@@ -1,18 +1,145 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { Shield, Activity, Clock, AlertTriangle, ExternalLink, FileText, Map, CreditCard, UserCheck, GraduationCap, ChevronRight, Lock, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Shield, Activity, Clock, AlertTriangle, FileText, ChevronRight, Lock, X, Copy, Check, Cpu, Hash, Zap } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { Service, Activity as ActivityType, cn } from '../lib/utils';
 import * as Icons from 'lucide-react';
 
-const ServiceCard = ({ service }: { service: Service }) => {
+interface TokenMeta {
+  tokenId: string;
+  accessLevel: string;
+  validity: string;
+  blockchainTxId: string;
+  requestHash: string;
+}
+
+interface ServiceTokenModalProps {
+  service: Service;
+  tokenMeta: TokenMeta;
+  onClose: () => void;
+}
+
+function ServiceTokenModal({ service, tokenMeta, onClose }: ServiceTokenModalProps) {
   const Icon = (Icons as any)[service.icon] || FileText;
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyValue = (label: string, value: string) => {
+    navigator.clipboard.writeText(value);
+    setCopied(label);
+    setTimeout(() => setCopied(null), 1800);
+  };
 
   return (
     <motion.div
-      whileHover={{ y: -4, shadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1)' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 20 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="bg-brand p-8 relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 opacity-10">
+            <Shield className="w-40 h-40" />
+          </div>
+          <div className="relative z-10 flex items-start justify-between">
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/50 block mb-2">Service Token Issued</span>
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-white/15 rounded-xl">
+                  <Icon className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-white tracking-tight">{service.name}</h2>
+              </div>
+            </div>
+            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+              <X className="w-5 h-5 text-white/70" />
+            </button>
+          </div>
+          <div className="relative z-10 mt-6 flex gap-3">
+            <span className="px-3 py-1.5 bg-success/20 text-green-200 text-[10px] font-bold uppercase tracking-wider rounded-full border border-success/20">
+              ✓ Verified Citizen
+            </span>
+            <span className="px-3 py-1.5 bg-white/10 text-white/70 text-[10px] font-bold uppercase tracking-wider rounded-full border border-white/10">
+              Valid {tokenMeta.validity}
+            </span>
+          </div>
+        </div>
+
+        {/* Token Details */}
+        <div className="p-6 space-y-3">
+          {/* Token ID */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex items-center gap-3">
+              <Zap className="w-4 h-4 text-brand" />
+              <div>
+                <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Token ID</p>
+                <p className="text-sm font-mono font-bold text-text-main">{tokenMeta.tokenId}</p>
+              </div>
+            </div>
+            <button onClick={() => copyValue('token', tokenMeta.tokenId)} className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
+              {copied === 'token' ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4 text-text-muted" />}
+            </button>
+          </div>
+
+          {/* Blockchain TX */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex items-center gap-3 min-w-0">
+              <Cpu className="w-4 h-4 text-brand shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Blockchain TX</p>
+                <p className="text-sm font-mono font-bold text-text-main truncate max-w-[180px]">{tokenMeta.blockchainTxId}</p>
+              </div>
+            </div>
+            <button onClick={() => copyValue('tx', tokenMeta.blockchainTxId)} className="p-2 hover:bg-slate-200 rounded-lg transition-colors shrink-0">
+              {copied === 'tx' ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4 text-text-muted" />}
+            </button>
+          </div>
+
+          {/* Integrity Hash */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex items-center gap-3 min-w-0">
+              <Hash className="w-4 h-4 text-brand shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Integrity Hash (SHA-256)</p>
+                <p className="text-sm font-mono font-bold text-text-main truncate max-w-[180px]">{tokenMeta.requestHash.slice(0, 20)}…</p>
+              </div>
+            </div>
+            <button onClick={() => copyValue('hash', tokenMeta.requestHash)} className="p-2 hover:bg-slate-200 rounded-lg transition-colors shrink-0">
+              {copied === 'hash' ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4 text-text-muted" />}
+            </button>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="w-full mt-2 py-4 bg-brand text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-brand/90 transition-colors"
+          >
+            Done
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+const ServiceCard = ({ service, onClick, isLoading }: { service: Service; onClick: () => void; isLoading: boolean }) => {
+  const Icon = (Icons as any)[service.icon] || FileText;
+
+  return (
+    <motion.button
+      onClick={onClick}
+      disabled={isLoading}
+      whileHover={isLoading ? {} : { y: -4 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="card p-8 group cursor-pointer bg-white/80 backdrop-blur-sm"
+      className="card p-8 group cursor-pointer bg-white/80 backdrop-blur-sm text-left w-full disabled:opacity-60 disabled:cursor-wait"
     >
       <div className="flex items-start justify-between mb-8">
         <div className="p-4 bg-brand/5 rounded-2xl group-hover:bg-brand/10 transition-colors">
@@ -25,9 +152,9 @@ const ServiceCard = ({ service }: { service: Service }) => {
       <h3 className="text-xl font-bold text-text-main mb-3 tracking-tight">{service.name}</h3>
       <p className="text-sm text-text-muted mb-6 leading-relaxed font-medium line-clamp-2">{service.description}</p>
       <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-brand group-hover:translate-x-2 transition-transform">
-        Open Portal <ChevronRight className="w-4 h-4 ml-2" />
+        {isLoading ? 'Issuing Token…' : 'Request Access'} <ChevronRight className="w-4 h-4 ml-2" />
       </div>
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -36,6 +163,17 @@ export function DashboardPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [activities, setActivities] = useState<ActivityType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingServiceId, setLoadingServiceId] = useState<string | null>(null);
+  const [activeToken, setActiveToken] = useState<{ service: Service; meta: TokenMeta } | null>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
+
+  const fetchActivity = async () => {
+    try {
+      const res = await fetch('/api/activity');
+      const data = await res.json();
+      if (data.success) setActivities(data.activity);
+    } catch {}
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,10 +195,42 @@ export function DashboardPage() {
     fetchData();
   }, []);
 
+  const handleRequestService = async (service: Service) => {
+    setLoadingServiceId(service.id);
+    setRequestError(null);
+    try {
+      const res = await fetch('/api/request-service', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serviceId: service.id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActiveToken({ service, meta: data.tokenMeta });
+        fetchActivity();
+      } else {
+        setRequestError(data.message || 'Failed to issue token.');
+      }
+    } catch {
+      setRequestError('Network error. Please try again.');
+    } finally {
+      setLoadingServiceId(null);
+    }
+  };
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto bg-background">
+      <AnimatePresence>
+        {activeToken && (
+          <ServiceTokenModal
+            service={activeToken.service}
+            tokenMeta={activeToken.meta}
+            onClose={() => setActiveToken(null)}
+          />
+        )}
+      </AnimatePresence>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column - Main Content */}
         <div className="lg:col-span-8 space-y-12">
@@ -98,10 +268,19 @@ export function DashboardPage() {
               </div>
               <button className="text-[11px] font-bold uppercase tracking-widest text-brand hover:opacity-70 transition-opacity">Manage Services</button>
             </div>
+            {requestError && (
+              <div className="mb-6 px-5 py-4 bg-red-50 border border-red-100 rounded-2xl text-sm font-medium text-red-600">
+                {requestError}
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {services.map(service => (
                 <div key={service.id}>
-                  <ServiceCard service={service} />
+                  <ServiceCard
+                    service={service}
+                    onClick={() => handleRequestService(service)}
+                    isLoading={loadingServiceId === service.id}
+                  />
                 </div>
               ))}
             </div>

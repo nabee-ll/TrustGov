@@ -11,5 +11,6 @@ router.get('/stats', serviceController.getStats);
 // Protected routes
 router.get('/services', authenticateToken, serviceController.getServices);
 router.get('/activity', authenticateToken, serviceController.getActivity);
+router.post('/request-service', authenticateToken, serviceController.requestService);
 
 export default router;

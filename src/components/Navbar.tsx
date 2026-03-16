@@ -72,7 +72,7 @@ export function Navbar() {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-secondary-text hover:text-primary-text"
+              className="p-2 text-text-muted hover:text-text-main"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -88,7 +88,7 @@ export function Navbar() {
               key={item.name}
               to={item.path}
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 text-base font-medium text-secondary-text hover:text-teal hover:bg-white/5 rounded-md"
+              className="block px-3 py-2 text-base font-medium text-text-muted hover:text-brand hover:bg-brand/5 rounded-md"
             >
               {item.name}
             </Link>
@@ -98,7 +98,7 @@ export function Navbar() {
               <Link
                 to="/dashboard"
                 onClick={() => setIsOpen(false)}
-                className="block px-3 py-2 text-base font-medium text-teal hover:bg-white/5 rounded-md"
+                className="block px-3 py-2 text-base font-medium text-brand hover:bg-brand/5 rounded-md"
               >
                 Dashboard
               </Link>
@@ -113,7 +113,7 @@ export function Navbar() {
             <Link
               to="/login"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 text-base font-medium bg-cyber-blue text-white rounded-md text-center"
+              className="block px-3 py-2 text-base font-medium bg-brand text-white rounded-md text-center"
             >
               Login
             </Link>

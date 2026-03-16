@@ -1,28 +1,68 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Shield, Lock, User, ArrowRight, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Shield, ArrowRight, Loader2, CheckCircle, AlertCircle, Laptop, MapPin, Cpu, User, Phone } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+type Step = 'login' | 'otp' | 'device' | 'token';
+type LoginMethod = 'userId' | 'phone';
+
+const getBrowserName = () => {
+  const ua = navigator.userAgent;
+  if (ua.includes('Edg')) return 'Microsoft Edge';
+  if (ua.includes('Chrome')) return 'Chrome Browser';
+  if (ua.includes('Firefox')) return 'Firefox Browser';
+  if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari Browser';
+  return 'Secure Browser';
+};
+
+const getOperatingSystem = () => {
+  const ua = navigator.userAgent;
+  if (ua.includes('Windows')) return 'Windows';
+  if (ua.includes('Mac')) return 'macOS';
+  if (ua.includes('Linux')) return 'Linux';
+  if (ua.includes('Android')) return 'Android';
+  if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+  return 'Unknown OS';
+};
+
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, verify } = useAuth();
-  const [step, setStep] = useState<'login' | 'otp'>('login');
-  const [citizenId, setCitizenId] = useState('');
-  const [password, setPassword] = useState('');
+  const { sendOtp, verifyOtp } = useAuth();
+
+  const [step, setStep] = useState<Step>('login');
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>('userId');
+  const [identifier, setIdentifier] = useState('');
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [resolvedUserId, setResolvedUserId] = useState('TG-45821');
+  const [checks, setChecks] = useState({
+    device: false,
+    location: false,
+    session: false,
+  });
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const browser = getBrowserName();
+  const os = getOperatingSystem();
+  const locationLabel = 'Chennai, India';
+
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
     try {
-      const res = await login(citizenId, password);
+      const res = await sendOtp(loginMethod, identifier.trim());
       if (res.success) {
         setMessage(res.message);
+        if (res.userId) setResolvedUserId(res.userId);
+        if (res.debugOtp) {
+          setMessage(`${res.message} Demo OTP: ${res.debugOtp}`);
+        }
         setStep('otp');
       } else {
         setError(res.message);
@@ -34,13 +74,31 @@ export function LoginPage() {
     }
   };
 
-  const handleVerify = async (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
     try {
-      const res = await verify(citizenId, otp);
+      const res = await verifyOtp(loginMethod, identifier.trim(), otp);
       if (res.success) {
+        if (res.user?.userId) {
+          setResolvedUserId(res.user.userId);
+        }
+
+        setStep('device');
+        setChecks({ device: false, location: false, session: false });
+
+        await delay(500);
+        setChecks((prev) => ({ ...prev, device: true }));
+        await delay(500);
+        setChecks((prev) => ({ ...prev, location: true }));
+        await delay(500);
+        setChecks((prev) => ({ ...prev, session: true }));
+
+        await delay(700);
+        setStep('token');
+        await delay(1500);
         navigate('/dashboard');
       } else {
         setError(res.message);
@@ -55,7 +113,7 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(37,99,235,0.02),transparent_70%)]" />
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -67,18 +125,28 @@ export function LoginPage() {
             <div className="w-12 h-12 bg-brand rounded-2xl flex items-center justify-center shadow-lg shadow-brand/20 group-hover:scale-110 transition-transform duration-300">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-text-main">
-              TrustGov
-            </span>
+            <span className="text-2xl font-bold tracking-tight text-text-main">TrustGov</span>
           </Link>
+
           <h1 className="text-3xl font-bold text-text-main mb-3">
-            {step === 'login' ? 'Welcome Back' : 'Identity Verification'}
+            {step === 'login' && 'Secure Login'}
+            {step === 'otp' && 'Identity Verification'}
+            {step === 'device' && 'TrustGov Security Check'}
+            {step === 'token' && 'Generating Secure Identity Token'}
           </h1>
+
           <p className="text-text-muted font-light">
-            {step === 'login' 
-              ? 'Enter your government-issued credentials to continue.' 
-              : message || 'A secure verification code has been sent to your device.'}
+            {step === 'login' && 'Login using User ID or phone number and continue with OTP verification.'}
+            {step === 'otp' && (message || 'Enter OTP sent to your registered mobile number.')}
+            {step === 'device' && 'Verifying device, location, and session integrity.'}
+            {step === 'token' && 'Creating your secure session access token.'}
           </p>
+
+          {step === 'login' && (
+            <p className="mt-4 text-xs text-text-muted">
+              First time user? <Link to="/register" className="font-semibold text-brand hover:underline">Create account</Link>
+            </p>
+          )}
         </div>
 
         <div className="card p-8 md:p-10 bg-white/80 backdrop-blur-sm border-white/50">
@@ -89,34 +157,41 @@ export function LoginPage() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
-                onSubmit={handleLogin}
+                onSubmit={handleSendOtp}
                 className="space-y-6"
               >
+                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setLoginMethod('userId')}
+                    className={`rounded-lg px-3 py-2 text-xs font-bold transition ${loginMethod === 'userId' ? 'bg-white text-text-main shadow-sm' : 'text-text-muted'}`}
+                  >
+                    User ID + OTP
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLoginMethod('phone')}
+                    className={`rounded-lg px-3 py-2 text-xs font-bold transition ${loginMethod === 'phone' ? 'bg-white text-text-main shadow-sm' : 'text-text-muted'}`}
+                  >
+                    Phone + OTP
+                  </button>
+                </div>
+
                 <div>
-                  <label className="section-label mb-2">Citizen ID Number</label>
+                  <label className="section-label mb-2">{loginMethod === 'userId' ? 'TrustGov User ID' : 'Registered Phone Number'}</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+                    {loginMethod === 'userId' ? (
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+                    ) : (
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+                    )}
                     <input
                       type="text"
                       required
-                      value={citizenId}
-                      onChange={(e) => setCitizenId(e.target.value)}
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
                       className="input-field pl-12"
-                      placeholder="12 digit ID"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="section-label mb-2">Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
-                    <input
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="input-field pl-12"
-                      placeholder="••••••••"
+                      placeholder={loginMethod === 'userId' ? 'TG-45821' : '+91XXXXXXXXXX'}
                     />
                   </div>
                 </div>
@@ -128,30 +203,30 @@ export function LoginPage() {
                   </div>
                 )}
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isLoading}
                   className="btn-primary w-full py-4 flex items-center justify-center group"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                     <>
-                      Sign In
+                      Send OTP
                       <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </button>
               </motion.form>
-            ) : (
+            ) : step === 'otp' ? (
               <motion.form
                 key="otp-form"
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                onSubmit={handleVerify}
+                onSubmit={handleVerifyOtp}
                 className="space-y-6"
               >
                 <div>
-                  <label className="section-label mb-2">Verification Code</label>
+                  <label className="section-label mb-2">Enter OTP</label>
                   <input
                     type="text"
                     required
@@ -173,13 +248,14 @@ export function LoginPage() {
                   </div>
                 )}
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isLoading}
                   className="btn-primary w-full py-4"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify Identity'}
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setStep('login')}
@@ -188,24 +264,87 @@ export function LoginPage() {
                   Back to Login
                 </button>
               </motion.form>
+            ) : step === 'device' ? (
+              <motion.div
+                key="device-verification"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6"
+              >
+                <div className="p-5 rounded-2xl border border-brand/20 bg-brand/5">
+                  <p className="text-[11px] uppercase tracking-wider font-bold text-brand mb-4">Verifying Device...</p>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted flex items-center"><Laptop className="w-4 h-4 mr-2" />Device</span>
+                      <span className="font-semibold text-text-main">{browser}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted flex items-center"><Cpu className="w-4 h-4 mr-2" />Operating System</span>
+                      <span className="font-semibold text-text-main">{os}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted flex items-center"><MapPin className="w-4 h-4 mr-2" />Location</span>
+                      <span className="font-semibold text-text-main">{locationLabel}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted">Status</span>
+                      <span className="font-semibold text-success">Trusted Device</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center text-sm">
+                    {checks.device ? <CheckCircle className="w-4 h-4 text-success mr-2" /> : <Loader2 className="w-4 h-4 animate-spin text-brand mr-2" />}
+                    <span className="text-text-main">Device Verified</span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    {checks.location ? <CheckCircle className="w-4 h-4 text-success mr-2" /> : <Loader2 className="w-4 h-4 animate-spin text-brand mr-2" />}
+                    <span className="text-text-main">Location Verified</span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    {checks.session ? <CheckCircle className="w-4 h-4 text-success mr-2" /> : <Loader2 className="w-4 h-4 animate-spin text-brand mr-2" />}
+                    <span className="text-text-main">Session Secure</span>
+                  </div>
+                </div>
+
+                <p className="text-center text-[11px] uppercase tracking-wider font-bold text-text-muted">
+                  Proceeding to Secure Dashboard...
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="token-generation"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6"
+              >
+                <div className="p-6 rounded-2xl border border-success/20 bg-success/5">
+                  <p className="text-[11px] uppercase tracking-wider font-bold text-success mb-4">Session Token Created</p>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted">User ID</span>
+                      <span className="font-semibold text-text-main">{resolvedUserId}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted">Access Level</span>
+                      <span className="font-semibold text-text-main">Verified Citizen</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted">Session Validity</span>
+                      <span className="font-semibold text-text-main">15 minutes</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center text-brand text-sm font-semibold">
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Redirecting to dashboard...
+                </div>
+              </motion.div>
             )}
           </AnimatePresence>
-        </div>
-
-        <div className="mt-12 text-center">
-          <p className="text-[11px] uppercase tracking-widest font-bold text-text-muted mb-6">
-            Protected by National Cyber Security Center
-          </p>
-          <div className="flex justify-center items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4 text-brand/40" />
-              <span className="text-[10px] font-bold text-text-muted">AES-256</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Lock className="w-4 h-4 text-brand/40" />
-              <span className="text-[10px] font-bold text-text-muted">SSL SECURE</span>
-            </div>
-          </div>
         </div>
       </motion.div>
     </div>

@@ -4,7 +4,9 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || "gov-secure-secret-key-123";
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies?.auth_token;
+  const authHeader = req.headers.authorization;
+  const token = req.cookies?.access_token ||
+    (authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined);
 
   if (!token) {
     return res.status(401).json({ success: false, message: "Access denied. No token provided." });
