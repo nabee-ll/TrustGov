@@ -1,26 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const { users } = require('../db');
+const User = require('../models/User');
 const { authMiddleware } = require('../middleware/auth');
 
-// Get profile
-router.get('/profile', authMiddleware, (req, res) => {
-  const user = users.find(u => u.id === req.user.id);
-  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-  const { password, ...safeUser } = user;
-  res.json({ success: true, user: safeUser });
+// GET /api/user/profile
+router.get('/profile', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Could not fetch profile' });
+  }
 });
 
-// Update profile
-router.put('/profile', authMiddleware, (req, res) => {
-  const user = users.find(u => u.id === req.user.id);
-  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-  const { email, mobile, address } = req.body;
-  if (email) user.email = email;
-  if (mobile) user.mobile = mobile;
-  if (address) user.address = address;
-  const { password, ...safeUser } = user;
-  res.json({ success: true, user: safeUser, message: 'Profile updated successfully' });
+// PUT /api/user/profile
+router.put('/profile', authMiddleware, async (req, res) => {
+  try {
+    const { email, mobile, address } = req.body;
+    const update = {};
+    if (email) update.email = email;
+    if (mobile) update.mobile = mobile;
+    if (address) update.address = address;
+
+    const user = await User.findByIdAndUpdate(req.user.id, update, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user, message: 'Profile updated successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Could not update profile' });
+  }
 });
 
 module.exports = router;
