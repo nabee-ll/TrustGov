@@ -1,6 +1,12 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const express = require("express");
+const ddosDetection = require("./ddosDetection");
+
+const app = express();
+
+app.use(ddosDetection);
 const protect = async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
