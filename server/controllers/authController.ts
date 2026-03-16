@@ -77,8 +77,19 @@ const hashToken = (token: string) => crypto.createHash('sha256').update(token).d
 
 const getOtpForDemo = () => process.env.DEMO_OTP || '123456';
 
+const normalizePhone = (value: string) => value.replace(/\D/g, '');
+
+const normalizeIdentifier = (loginMethod: 'userId' | 'phone', identifier: string) => {
+  const raw = identifier.trim();
+  if (loginMethod === 'phone') return normalizePhone(raw);
+  return raw.toUpperCase();
+};
+
 const resolveUserByIdentifier = async (loginMethod: 'userId' | 'phone', identifier: string) => {
-  const query = loginMethod === 'userId' ? { userId: identifier } : { phone: identifier };
+  const normalizedIdentifier = normalizeIdentifier(loginMethod, identifier);
+  const query = loginMethod === 'userId'
+    ? { userId: normalizedIdentifier }
+    : { phone: normalizedIdentifier };
   return (await usersCollection()).findOne(query);
 };
 
@@ -95,7 +106,15 @@ export const register = async (req: Request, res: Response) => {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  const normalizedPhone = phone.trim();
+  const normalizedPhone = normalizePhone(phone);
+
+  if (normalizedPhone.length < 10) {
+    return res.status(400).json({ success: false, message: 'Enter a valid phone number with at least 10 digits.' });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ success: false, message: 'Password must be at least 8 characters.' });
+  }
 
   const users = await usersCollection();
   const existing = await users.findOne({ $or: [{ email: normalizedEmail }, { phone: normalizedPhone }] });

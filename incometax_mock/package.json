@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\"",
+    "start": "concurrently \"npm start --prefix backend\" \"set PORT=3001&& npm start --prefix frontend\"",
+    "dev": "npm start",
     "install:all": "npm install --prefix backend && npm install --prefix frontend"
   },
   "devDependencies": {

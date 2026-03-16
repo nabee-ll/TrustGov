@@ -17,9 +17,10 @@ interface ServiceTokenModalProps {
   service: Service;
   tokenMeta: TokenMeta;
   onClose: () => void;
+  onDone: () => void;
 }
 
-function ServiceTokenModal({ service, tokenMeta, onClose }: ServiceTokenModalProps) {
+function ServiceTokenModal({ service, tokenMeta, onClose, onDone }: ServiceTokenModalProps) {
   const Icon = (Icons as any)[service.icon] || FileText;
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -119,7 +120,7 @@ function ServiceTokenModal({ service, tokenMeta, onClose }: ServiceTokenModalPro
           </div>
 
           <button
-            onClick={onClose}
+            onClick={onDone}
             className="w-full mt-2 py-4 bg-brand text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-brand/90 transition-colors"
           >
             Done
@@ -166,6 +167,11 @@ export function DashboardPage() {
   const [loadingServiceId, setLoadingServiceId] = useState<string | null>(null);
   const [activeToken, setActiveToken] = useState<{ service: Service; meta: TokenMeta } | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
+  const taxServiceUrl = ((import.meta as any).env?.VITE_TAX_SERVICE_URL as string | undefined) || 'http://localhost:3001';
+
+  const serviceRedirectMap: Record<string, string> = {
+    tax: taxServiceUrl,
+  };
 
   const fetchActivity = async () => {
     try {
@@ -218,6 +224,18 @@ export function DashboardPage() {
     }
   };
 
+  const handleTokenDone = () => {
+    if (!activeToken) return;
+
+    const redirectUrl = serviceRedirectMap[activeToken.service.id];
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+      return;
+    }
+
+    setActiveToken(null);
+  };
+
   if (!user) return null;
 
   return (
@@ -228,6 +246,7 @@ export function DashboardPage() {
             service={activeToken.service}
             tokenMeta={activeToken.meta}
             onClose={() => setActiveToken(null)}
+            onDone={handleTokenDone}
           />
         )}
       </AnimatePresence>

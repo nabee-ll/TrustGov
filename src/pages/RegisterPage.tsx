@@ -71,11 +71,11 @@ export function RegisterPage() {
           </div>
           <div className="relative">
             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
-            <input className="input-field pl-12" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+            <input type="tel" className="input-field pl-12" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} required minLength={10} />
           </div>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
-            <input type="password" className="input-field pl-12" placeholder="Create Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input type="password" className="input-field pl-12" placeholder="Create Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
           </div>
 
           {error && (
