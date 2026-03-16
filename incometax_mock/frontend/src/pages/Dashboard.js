@@ -88,11 +88,11 @@ export default function Dashboard() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {[
                 { icon: '📄', label: 'File Return', action: () => navigate('/file-return') },
+                { icon: '💳', label: 'Pay Tax', action: () => navigate('/pay-tax') },
                 { icon: '📊', label: 'My Returns', action: () => navigate('/my-returns') },
                 { icon: '💰', label: 'Refund Status', action: () => navigate('/refund-status') },
                 { icon: '🧮', label: 'Tax Calculator', action: () => navigate('/tax-calculator') },
                 { icon: '👤', label: 'My Profile', action: () => navigate('/profile') },
-                { icon: '📋', label: 'AIS / 26AS', action: () => {} },
               ].map((a, i) => (
                 <button key={i} onClick={a.action} style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,

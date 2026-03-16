@@ -11,6 +11,7 @@ import TaxCalculator from './pages/TaxCalculator';
 import RefundStatus from './pages/RefundStatus';
 import MyReturns from './pages/MyReturns';
 import Profile from './pages/Profile';
+import PayTax from './pages/PayTax';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="/file-return" element={<ProtectedRoute><FileReturn /></ProtectedRoute>} />
           <Route path="/my-returns" element={<ProtectedRoute><MyReturns /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/pay-tax" element={<ProtectedRoute><PayTax /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

@@ -123,4 +123,59 @@ router.get('/ais', authMiddleware, (req, res) => {
   });
 });
 
+// Pay tax (Challan ITNS 280)
+router.post('/pay', authMiddleware, (req, res) => {
+  const { pan, name, ay, taxType, payMode, bank, amounts } = req.body;
+
+  if (!pan || !name || !ay || !taxType || !amounts?.total)
+    return res.status(400).json({ success: false, message: 'PAN, name, assessment year, tax type and amount are required' });
+
+  if (amounts.total <= 0)
+    return res.status(400).json({ success: false, message: 'Amount must be greater than zero' });
+
+  const user = users.find(u => u.id === req.user.id);
+  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+  const ts = Date.now();
+  const cin = `CIN${ts.toString().slice(-10)}`;
+  const bankRef = `BNK${ts.toString().slice(-8).split('').reverse().join('')}`;
+  const date = new Date().toISOString().split('T')[0];
+
+  const challan = {
+    id: uuidv4(),
+    cin,
+    bankRef,
+    pan: pan.toUpperCase(),
+    name,
+    ay,
+    taxType,
+    payMode,
+    bank: bank || '',
+    amounts,
+    amount: amounts.total,
+    date,
+    status: 'SUCCESS',
+    paidBy: user.id,
+  };
+
+  // Record payment in user history
+  if (!user.payments) user.payments = [];
+  user.payments.push(challan);
+
+  // If self-assessment tax paid, update matching return's taxDue
+  if (taxType === 'self_assessment' && user.returns) {
+    const ret = user.returns.find(r => r.ay === ay);
+    if (ret) {
+      ret.selfAssessmentTax = (ret.selfAssessmentTax || 0) + amounts.total;
+      ret.taxDue = Math.max(0, (ret.taxDue || 0) - amounts.total);
+    }
+  }
+
+  res.status(201).json({
+    success: true,
+    challan,
+    message: `Tax payment of ₹${amounts.total.toLocaleString('en-IN')} successful. CIN: ${cin}`,
+  });
+});
+
 module.exports = router;

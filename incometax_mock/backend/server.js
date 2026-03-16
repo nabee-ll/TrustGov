@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 
 /* ---------------- DATABASE CONNECTION ---------------- */
 
-const MONGO_URI = "mongodb+srv://nabeels2024csecs_db_user:4R7nXi5O2npMeZQC@trustgov.8yuza0i.mongodb.net/?appName=trustgov"
+const MONGO_URI = "mongodb+srv://Incometax:xeYRFuh0PeaXhqjI@trustgov.8yuza0i.mongodb.net/incometax?retryWrites=true&w=majority&appName=trustgov"
 
 mongoose.connect(MONGO_URI)
   .then(() => {
