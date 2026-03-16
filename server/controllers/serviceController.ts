@@ -26,6 +26,8 @@ interface ServiceRequestRecord {
   timestamp: string;
   requestHash: string;
   blockchainTxId: string;
+  verificationMode: string;
+  blockchainVerified: boolean;
   status: string;
 }
 
@@ -96,6 +98,8 @@ export const requestService = async (req: Request, res: Response) => {
     timestamp,
     requestHash: integrity.hash,
     blockchainTxId: integrity.blockchainTxId,
+    verificationMode: integrity.verificationMode,
+    blockchainVerified: integrity.blockchainVerified,
     status: 'issued',
   });
 
@@ -108,6 +112,7 @@ export const requestService = async (req: Request, res: Response) => {
       tokenId,
       hash: integrity.hash,
       blockchainTxId: integrity.blockchainTxId,
+      verificationMode: integrity.verificationMode,
     },
     JWT_SECRET,
     { expiresIn: '15m' }
@@ -123,6 +128,8 @@ export const requestService = async (req: Request, res: Response) => {
       validity: '15 minutes',
       blockchainTxId: integrity.blockchainTxId,
       requestHash: integrity.hash,
+      verificationMode: integrity.verificationMode,
+      blockchainVerified: integrity.blockchainVerified,
     },
   });
 };

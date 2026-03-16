@@ -1,16 +1,19 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
+import admin from 'firebase-admin';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import { getCollection } from '../db/mongo';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'gov-secure-secret-key-123';
-const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY || '15m';
-const REFRESH_TOKEN_EXPIRY = process.env.REFRESH_TOKEN_EXPIRY || '7d';
+const ACCESS_TOKEN_EXPIRY = (process.env.ACCESS_TOKEN_EXPIRY || '15m') as SignOptions['expiresIn'];
+const REFRESH_TOKEN_EXPIRY = (process.env.REFRESH_TOKEN_EXPIRY || '7d') as SignOptions['expiresIn'];
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
 const BCRYPT_ROUNDS = 10;
+
+let firebaseAppInitialized = false;
 
 interface UserDocument {
   _id?: ObjectId;
@@ -41,6 +44,32 @@ const otpStore = new Map<string, OtpRecord>();
 
 const usersCollection = () => getCollection<UserDocument>(process.env.USERS_COLLECTION || 'users');
 const tokenRecordsCollection = () => getCollection<TokenRecordDocument>(process.env.TOKEN_RECORDS_COLLECTION || 'token_records');
+
+const ensureFirebaseAdmin = () => {
+  if (firebaseAppInitialized) return true;
+  if (admin.apps.length > 0) {
+    firebaseAppInitialized = true;
+    return true;
+  }
+
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+  if (!projectId || !clientEmail || !privateKey) {
+    return false;
+  }
+
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    }),
+  });
+  firebaseAppInitialized = true;
+  return true;
+};
 
 const getCookieOptions = (maxAge: number) => {
   const isProd = process.env.NODE_ENV === 'production';
@@ -91,6 +120,38 @@ const resolveUserByIdentifier = async (loginMethod: 'userId' | 'phone', identifi
     ? { userId: normalizedIdentifier }
     : { phone: normalizedIdentifier };
   return (await usersCollection()).findOne(query);
+};
+
+const issueSessionForUser = async (user: UserDocument, res: Response) => {
+  const tokenId = uuidv4();
+  const accessToken = signAccessToken(user);
+  const refreshToken = signRefreshToken(user, tokenId);
+  const refreshTokenHash = hashToken(refreshToken);
+  const refreshExpiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  await (await tokenRecordsCollection()).insertOne({
+    userId: user.userId,
+    tokenHash: refreshTokenHash,
+    tokenType: 'refresh',
+    issuedAt: new Date(),
+    expiresAt: refreshExpiryDate,
+    revoked: false,
+  });
+
+  res.cookie('access_token', accessToken, getCookieOptions(15 * 60 * 1000));
+  res.cookie('refresh_token', refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
+
+  return {
+    accessToken,
+    refreshToken,
+    user: {
+      id: user.userId,
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    },
+  };
 };
 
 export const register = async (req: Request, res: Response) => {
@@ -193,37 +254,53 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
   otpStore.delete(user.userId);
 
-  const tokenId = uuidv4();
-  const accessToken = signAccessToken(user);
-  const refreshToken = signRefreshToken(user, tokenId);
-  const refreshTokenHash = hashToken(refreshToken);
-  const refreshExpiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-  await (await tokenRecordsCollection()).insertOne({
-    userId: user.userId,
-    tokenHash: refreshTokenHash,
-    tokenType: 'refresh',
-    issuedAt: new Date(),
-    expiresAt: refreshExpiryDate,
-    revoked: false,
-  });
-
-  res.cookie('access_token', accessToken, getCookieOptions(15 * 60 * 1000));
-  res.cookie('refresh_token', refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
+  const session = await issueSessionForUser(user, res);
 
   return res.json({
     success: true,
     message: 'OTP verified successfully.',
-    accessToken,
-    refreshToken,
-    user: {
-      id: user.userId,
-      userId: user.userId,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-    },
+    accessToken: session.accessToken,
+    refreshToken: session.refreshToken,
+    user: session.user,
   });
+};
+
+export const verifyFirebasePhone = async (req: Request, res: Response) => {
+  const { idToken } = req.body as { idToken?: string };
+
+  if (!idToken) {
+    return res.status(400).json({ success: false, message: 'Firebase idToken is required.' });
+  }
+
+  if (!ensureFirebaseAdmin()) {
+    return res.status(500).json({ success: false, message: 'Firebase Admin is not configured on the server.' });
+  }
+
+  try {
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    const phoneNumber = normalizePhone(decoded.phone_number || '');
+
+    if (!phoneNumber) {
+      return res.status(400).json({ success: false, message: 'Verified Firebase account does not include a phone number.' });
+    }
+
+    const user = await (await usersCollection()).findOne({ phone: phoneNumber });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'No TrustGov user found for this phone number.' });
+    }
+
+    const session = await issueSessionForUser(user, res);
+    return res.json({
+      success: true,
+      message: 'Firebase phone verification successful.',
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+      user: session.user,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Firebase token verification failed.';
+    return res.status(401).json({ success: false, message });
+  }
 };
 
 export const refreshSession = async (req: Request, res: Response) => {

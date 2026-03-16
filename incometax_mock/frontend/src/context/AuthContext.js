@@ -9,12 +9,46 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      const savedUser = localStorage.getItem('it_user');
-      if (savedUser) setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    let cancelled = false;
+
+    const bootstrapAuth = async () => {
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        const savedUser = localStorage.getItem('it_user');
+        if (savedUser && !cancelled) setUser(JSON.parse(savedUser));
+        if (!cancelled) setLoading(false);
+        return;
+      }
+
+      try {
+        // Auto-auth with demo account so users can enter portal directly from TrustGov.
+        const res = await axios.post('/api/auth/login', {
+          pan: 'ABCDE1234F',
+          password: 'Test@1234',
+        });
+
+        const { token: t, user: u } = res.data;
+        localStorage.setItem('it_token', t);
+        localStorage.setItem('it_user', JSON.stringify(u));
+        axios.defaults.headers.common['Authorization'] = `Bearer ${t}`;
+        if (!cancelled) {
+          setToken(t);
+          setUser(u);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setUser(null);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    bootstrapAuth();
+
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
 
   const login = async (pan, password) => {

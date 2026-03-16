@@ -11,6 +11,8 @@ interface TokenMeta {
   validity: string;
   blockchainTxId: string;
   requestHash: string;
+  verificationMode?: string;
+  blockchainVerified?: boolean;
 }
 
 interface ServiceTokenModalProps {
@@ -23,6 +25,7 @@ interface ServiceTokenModalProps {
 function ServiceTokenModal({ service, tokenMeta, onClose, onDone }: ServiceTokenModalProps) {
   const Icon = (Icons as any)[service.icon] || FileText;
   const [copied, setCopied] = useState<string | null>(null);
+  const isBlockchainVerified = tokenMeta.blockchainVerified ?? tokenMeta.blockchainTxId.startsWith('AMB-VERIFIED');
 
   const copyValue = (label: string, value: string) => {
     navigator.clipboard.writeText(value);
@@ -71,6 +74,9 @@ function ServiceTokenModal({ service, tokenMeta, onClose, onDone }: ServiceToken
             </span>
             <span className="px-3 py-1.5 bg-white/10 text-white/70 text-[10px] font-bold uppercase tracking-wider rounded-full border border-white/10">
               Valid {tokenMeta.validity}
+            </span>
+            <span className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-full border ${isBlockchainVerified ? 'bg-emerald-400/20 text-emerald-100 border-emerald-300/30' : 'bg-amber-400/20 text-amber-100 border-amber-300/30'}`}>
+              {isBlockchainVerified ? 'Blockchain Verified' : 'Blockchain Pending'}
             </span>
           </div>
         </div>
