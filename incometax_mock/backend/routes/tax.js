@@ -137,7 +137,6 @@ router.get('/ais', authMiddleware, async (req, res) => {
     const user = await User.findById(req.user.id).select('pan name returns');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    // Derive AIS data from filed returns + mock other sources
     const latestReturn = user.returns[0];
     res.json({
       success: true,

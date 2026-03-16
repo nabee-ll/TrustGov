@@ -7,6 +7,7 @@ import app from "./server/app";
 import { verifyMongoConnection } from "./server/db/mongo";
 
 const RESERVED_DEV_PORTS = new Set([3001, 5000]);
+const DEFAULT_HMR_PORT = Number(process.env.VITE_HMR_PORT || 24678);
 
 const isPortAvailable = (port: number, host = '0.0.0.0') => new Promise<boolean>((resolve) => {
   const tester = net.createServer();
@@ -34,6 +35,20 @@ const resolveServerPort = async (basePort: number) => {
   return basePort;
 };
 
+const resolveHmrPort = async (basePort: number) => {
+  if (await isPortAvailable(basePort, '127.0.0.1')) return basePort;
+
+  for (let offset = 1; offset <= 20; offset += 1) {
+    const candidate = basePort + offset;
+    if (await isPortAvailable(candidate, '127.0.0.1')) {
+      console.warn(`[TrustGov] HMR port ${basePort} is in use. Falling back to ${candidate}.`);
+      return candidate;
+    }
+  }
+
+  return basePort;
+};
+
 async function startServer() {
   const DEFAULT_PORT = Number(process.env.PORT || 3000);
 
@@ -48,8 +63,15 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
+    const hmrPort = await resolveHmrPort(DEFAULT_HMR_PORT);
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: {
+          host: 'localhost',
+          port: hmrPort,
+        },
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);

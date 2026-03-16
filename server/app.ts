@@ -2,26 +2,28 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
 import serviceRoutes from './routes/serviceRoutes';
+import gatewayRoutes from './gateway/routes/gatewayRoutes';
+import { assertCriticalEnv } from './config/env';
+import { requestLogger } from './middleware/requestLogger';
+import { corsConfig, securityHeaders } from './middleware/securityHeaders';
+import { securityEventQueue } from './services/securityEventQueue';
 
 const app = express();
+
+assertCriticalEnv();
+securityEventQueue.start();
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-
-// Logging middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} - ${duration}ms`);
-  });
-  next();
-});
+app.use(corsConfig);
+app.use(securityHeaders);
+app.use(requestLogger);
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', serviceRoutes);
+app.use('/api/gateway', gatewayRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
