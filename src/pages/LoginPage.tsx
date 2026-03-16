@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Shield, ArrowRight, Loader2, CheckCircle, AlertCircle, Laptop, MapPin, Cpu, User, Phone } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import { buildRecaptchaVerifier, isFirebasePhoneAuthConfigured, normalizeFirebasePhone, startFirebasePhoneVerification } from '../lib/firebase';
+import type { ConfirmationResult, RecaptchaVerifier } from 'firebase/auth';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -30,7 +32,7 @@ const getOperatingSystem = () => {
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { sendOtp, verifyOtp } = useAuth();
+  const { sendOtp, verifyOtp, verifyFirebasePhone } = useAuth();
 
   const [step, setStep] = useState<Step>('login');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('userId');
@@ -40,6 +42,8 @@ export function LoginPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [resolvedUserId, setResolvedUserId] = useState('TG-45821');
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
   const [checks, setChecks] = useState({
     device: false,
     location: false,
@@ -56,6 +60,23 @@ export function LoginPage() {
     setError('');
 
     try {
+      if (loginMethod === 'phone') {
+        if (!isFirebasePhoneAuthConfigured()) {
+          setError('Firebase phone authentication is not configured yet.');
+          return;
+        }
+
+        const normalizedPhone = normalizeFirebasePhone(identifier.trim());
+        const verifier = recaptchaVerifier || buildRecaptchaVerifier('firebase-recaptcha-container');
+        if (!recaptchaVerifier) setRecaptchaVerifier(verifier);
+
+        const result = await startFirebasePhoneVerification(normalizedPhone, verifier);
+        setConfirmationResult(result);
+        setMessage(`OTP sent to ${normalizedPhone}.`);
+        setStep('otp');
+        return;
+      }
+
       const res = await sendOtp(loginMethod, identifier.trim());
       if (res.success) {
         setMessage(res.message);
@@ -80,7 +101,18 @@ export function LoginPage() {
     setError('');
 
     try {
-      const res = await verifyOtp(loginMethod, identifier.trim(), otp);
+      const res = loginMethod === 'phone'
+        ? await (async () => {
+            if (!confirmationResult) {
+              return { success: false, message: 'OTP session expired. Please request a new OTP.' };
+            }
+
+            const credential = await confirmationResult.confirm(otp);
+            const idToken = await credential.user.getIdToken();
+            return verifyFirebasePhone(idToken);
+          })()
+        : await verifyOtp(loginMethod, identifier.trim(), otp);
+
       if (res.success) {
         if (res.user?.userId) {
           setResolvedUserId(res.user.userId);
@@ -237,7 +269,7 @@ export function LoginPage() {
                     className="w-full bg-slate-50 border border-border rounded-xl py-4 text-center text-3xl font-bold tracking-[0.4em] text-text-main focus:outline-none focus:ring-4 focus:ring-brand/5 focus:border-brand focus:bg-white transition-all"
                   />
                   <p className="mt-4 text-[11px] text-text-muted text-center font-medium uppercase tracking-wider">
-                    Demo OTP: <span className="text-brand">123456</span>
+                    {loginMethod === 'phone' ? 'OTP sent to your verified mobile number' : <>Demo OTP: <span className="text-brand">123456</span></>}
                   </p>
                 </div>
 
@@ -347,6 +379,7 @@ export function LoginPage() {
           </AnimatePresence>
         </div>
       </motion.div>
+      <div id="firebase-recaptcha-container" />
     </div>
   );
 }

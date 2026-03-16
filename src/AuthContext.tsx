@@ -8,6 +8,7 @@ interface AuthContextType {
   register: (payload: { name: string; email: string; phone: string; password: string }) => Promise<{ success: boolean; message: string; userId?: string }>;
   sendOtp: (loginMethod: LoginMethod, identifier: string) => Promise<{ success: boolean; message: string; userId?: string; debugOtp?: string }>;
   verifyOtp: (loginMethod: LoginMethod, identifier: string, otp: string) => Promise<{ success: boolean; message: string; user?: User }>;
+  verifyFirebasePhone: (idToken: string) => Promise<{ success: boolean; message: string; user?: User }>;
   logout: () => Promise<void>;
   isLoading: boolean;
 }
@@ -94,6 +95,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return data;
   };
 
+  const verifyFirebasePhone = async (idToken: string) => {
+    const res = await fetch('/api/auth/verify-firebase-phone', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+
+    const data = await res.json();
+    if (data.success && data.user) {
+      setUser(data.user);
+      localStorage.setItem('trustgov_user', JSON.stringify(data.user));
+    }
+    return data;
+  };
+
   const logout = async () => {
     await fetch('/api/auth/logout', {
       method: 'POST',
@@ -104,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, register, sendOtp, verifyOtp, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, register, sendOtp, verifyOtp, verifyFirebasePhone, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
