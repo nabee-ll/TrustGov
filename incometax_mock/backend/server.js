@@ -1,26 +1,23 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const taxRoutes = require('./routes/tax');
 const userRoutes = require('./routes/user');
 const refundRoutes = require('./routes/refund');
+const { seedDemoUser } = require('./seed');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 /* ---------------- DATABASE CONNECTION ---------------- */
 
-const MONGO_URI = "mongodb+srv://Incometax:xeYRFuh0PeaXhqjI@trustgov.8yuza0i.mongodb.net/incometax?retryWrites=true&w=majority&appName=trustgov"
+const DEFAULT_ATLAS_URI = 'mongodb+srv://Incometax:xeYRFuh0PeaXhqjI@trustgov.8yuza0i.mongodb.net/Incometax?retryWrites=true&w=majority&appName=trustgov';
+const MONGO_URI = process.env.MONGO_URI || process.env.INCOMETAX_MONGO_URI || DEFAULT_ATLAS_URI;
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log("✅ MongoDB Atlas Connected Successfully");
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB Connection Failed:", err);
-  });
+mongoose.set('strictQuery', true);
 
 /* ---------------- MIDDLEWARE ---------------- */
 
@@ -58,8 +55,21 @@ app.use((err, req, res, next) => {
 
 /* ---------------- SERVER ---------------- */
 
-app.listen(PORT, () => {
-  console.log(`✅ Income Tax Portal Backend running on http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log('✅ MongoDB connected for Income Tax Portal');
+    await seedDemoUser();
+
+    app.listen(PORT, () => {
+      console.log(`✅ Income Tax Portal Backend running on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ MongoDB Connection Failed:', err);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 module.exports = app;

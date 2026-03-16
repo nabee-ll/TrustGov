@@ -36,58 +36,74 @@ export function SecurityPage() {
         <SecuritySection
           icon={ShieldAlert}
           title="Zero Trust Architecture"
-          description="Unlike traditional networks that trust users once they are inside, TrustGov treats every request as a potential threat. Every API call, every login, and every data access is verified in real-time."
+          description="Every API call is authenticated independently. No implicit trust is granted to any session, network, or internal service."
           features={[
-            "Identity-based access control",
-            "Micro-segmentation of services",
-            "Continuous verification",
-            "Least privilege access"
+            "JWT-based stateless auth (15-min access tokens)",
+            "Refresh token rotation with revocation",
+            "Least-privilege route protection",
+            "Signed tokens verified on every request"
           ]}
         />
 
         <SecuritySection
           icon={Lock}
-          title="Advanced Encryption"
-          description="We use military-grade encryption standards to protect citizen data at every stage of its lifecycle."
+          title="Encryption & Integrity"
+          description="Citizen data is protected in transit and at rest, with cryptographic proofs recorded on a distributed ledger."
           features={[
-            "AES-256 for data at rest",
-            "TLS 1.3 for data in transit",
-            "Hardware Security Modules (HSM)",
-            "Quantum-resistant algorithms"
+            "bcrypt password hashing (cost 10)",
+            "SHA-256 blockchain record fingerprinting",
+            "HTTPS / TLS for all API traffic",
+            "AWS Managed Blockchain audit logs"
           ]}
         />
 
         <SecuritySection
           icon={Key}
           title="Multi-Factor Authentication"
-          description="Identity is verified through multiple independent channels to ensure that only the rightful citizen can access their records."
+          description="Identity is verified through phone-based one-time passwords, with real-time safeguards against brute-force attacks."
           features={[
-            "Biometric verification",
-            "Time-based OTP (TOTP)",
-            "FIDO2 Security Keys",
-            "Behavioral analytics"
+            "Phone OTP via Firebase Auth",
+            "Demo fallback OTP for non-Blaze accounts",
+            "5-minute OTP expiry window",
+            "Max 3 OTP requests per 10 minutes"
           ]}
         />
 
         <SecuritySection
           icon={Database}
           title="Blockchain Integrity"
-          description="To prevent administrative corruption or unauthorized record changes, we utilize a private blockchain ledger to store cryptographic proofs of all government records."
+          description="To prevent administrative corruption or unauthorised record changes, cryptographic proofs of all government records are anchored to an immutable blockchain ledger."
           features={[
             "Tamper-proof audit logs",
-            "Distributed consensus",
+            "Distributed consensus via AWS AMB",
             "Immutable record history",
-            "Transparent verification"
+            "Transparent on-chain verification"
           ]}
         />
       </div>
 
       <div className="mt-24 p-12 rounded-3xl bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/10 text-center">
         <Shield className="w-16 h-16 text-brand mx-auto mb-6" />
-        <h2 className="text-3xl font-bold text-text-main mb-4">AI-Based Threat Monitoring</h2>
+        <h2 className="text-3xl font-bold text-text-main mb-4">Active Threat Mitigation</h2>
         <p className="text-lg text-text-muted max-w-3xl mx-auto mb-8">
-          Our system employs advanced machine learning models to detect suspicious patterns, brute-force attempts, and anomalous behavior in real-time, automatically neutralizing threats before they reach government backends.
+          TrustGov enforces real-time protections against brute-force and credential-stuffing attacks, with every security event persisted to a tamper-evident log.
         </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto text-left mb-8">
+          {[
+            { label: "OTP Rate Limiting", detail: "Max 3 requests / 10 min per account" },
+            { label: "Brute-force Lockout", detail: "Account locked for 15 min after 5 wrong OTPs" },
+            { label: "IP Blocking", detail: "IP blocked for 30 min after 10 failures" },
+            { label: "New Device Alerts", detail: "Flagged when login IP or browser changes" },
+          ].map(({ label, detail }) => (
+            <div key={label} className="glass p-4 rounded-xl border border-white/10">
+              <div className="flex items-center space-x-2 mb-1">
+                <CheckCircle className="w-4 h-4 text-success flex-shrink-0" />
+                <span className="text-sm font-semibold text-text-main">{label}</span>
+              </div>
+              <p className="text-xs text-text-muted pl-6">{detail}</p>
+            </div>
+          ))}
+        </div>
         <div className="inline-flex items-center space-x-2 text-brand font-bold uppercase tracking-widest text-sm">
           <Activity className="w-4 h-4 animate-pulse" />
           <span>Active Protection Enabled</span>

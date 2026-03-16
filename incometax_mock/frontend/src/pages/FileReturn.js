@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const AY_OPTIONS = ['2024-25', '2023-24', '2022-23'];
+const AY_OPTIONS = ['2026-27', '2025-26', '2024-25', '2023-24', '2022-23'];
 const FORM_OPTIONS = [
   { value: 'ITR-1', label: 'ITR-1 (Sahaj)', desc: 'Salaried, one house property, other sources — income up to ₹50L' },
   { value: 'ITR-2', label: 'ITR-2', desc: 'Capital gains, multiple properties, foreign income' },
@@ -20,7 +20,7 @@ export default function FileReturn() {
   const [error, setError] = useState('');
 
   const [form, setForm] = useState({
-    ay: '2024-25',
+    ay: '2026-27',
     itrForm: 'ITR-1',
     regime: 'new',
     // Income
@@ -116,6 +116,13 @@ export default function FileReturn() {
         <div className="card" style={{ textAlign: 'center', padding: '48px 32px' }}>
           <div style={{ fontSize: 64, marginBottom: 16 }}>✅</div>
           <h2 style={{ color: 'var(--success)', marginBottom: 8, fontSize: 22 }}>ITR Filed Successfully!</h2>
+          
+          {success.warning && (
+            <div className="alert" style={{ background: '#fff3cd', color: '#856404', border: '1px solid #ffeeba', padding: '12px', borderRadius: '8px', marginBottom: '24px' }}>
+              ⚠️ <strong>Action Required:</strong> {success.warning}
+            </div>
+          )}
+
           <p style={{ color: 'var(--text-muted)', marginBottom: 24 }}>Your Income Tax Return has been filed and submitted for processing.</p>
           <div style={{ background: 'var(--bg)', borderRadius: 8, padding: '20px', marginBottom: 24, textAlign: 'left' }}>
             {[
@@ -124,6 +131,7 @@ export default function FileReturn() {
               ['Form', success.return?.form],
               ['Filed On', success.return?.filedOn],
               ['Status', success.return?.status],
+              ['Tax Due', success.return?.taxDue > 0 ? fmt(success.return.taxDue) : 'Nil'],
               ['Refund Amount', success.return?.refundAmount > 0 ? fmt(success.return.refundAmount) : 'Nil'],
             ].map(([k, v]) => (
               <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)', fontSize: 13 }}>
@@ -133,7 +141,10 @@ export default function FileReturn() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button className="btn btn-primary" onClick={() => navigate('/my-returns')}>View My Returns</button>
+            {success.return?.taxDue > 0 && (
+              <button className="btn btn-primary" onClick={() => navigate('/pay-tax')}>Pay Now</button>
+            )}
+            <button className={success.return?.taxDue > 0 ? "btn btn-secondary" : "btn btn-primary"} onClick={() => navigate('/my-returns')}>View My Returns</button>
             <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
           </div>
         </div>

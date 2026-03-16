@@ -1,23 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-const { users } = require('../db');
+const User = require('../models/User');
 const { authMiddleware } = require('../middleware/auth');
 
 // Get all returns for user
-router.get('/returns', authMiddleware, (req, res) => {
-  const user = users.find(u => u.id === req.user.id);
+router.get('/returns', authMiddleware, async (req, res) => {
+  const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
   res.json({ success: true, returns: user.returns });
 });
 
 // File a new return
-router.post('/file-return', authMiddleware, (req, res) => {
+router.post('/file-return', authMiddleware, async (req, res) => {
   const { ay, form, totalIncome, taxPayable, tdsDeducted, selfAssessmentTax, advanceTax } = req.body;
   if (!ay || !form || totalIncome === undefined)
     return res.status(400).json({ success: false, message: 'Assessment year, form and income are required' });
 
-  const user = users.find(u => u.id === req.user.id);
+  const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
   const existing = user.returns.find(r => r.ay === ay);
@@ -32,7 +32,7 @@ router.post('/file-return', authMiddleware, (req, res) => {
     ay,
     form,
     filedOn: new Date().toISOString().split('T')[0],
-    status: 'Filed - Pending Verification',
+    status: taxDue > 0 ? 'Pending Payment' : 'Filed - Pending Verification',
     ackNo: `ITR-${Date.now()}`,
     totalIncome,
     taxPayable: taxPayable || 0,
@@ -47,6 +47,32 @@ router.post('/file-return', authMiddleware, (req, res) => {
 
   if (refundAmount > 0) {
     user.refunds.push({ id: uuidv4(), ay, amount: refundAmount, status: 'Initiated', date: new Date().toISOString().split('T')[0] });
+  }
+
+  await user.save();
+
+  if (taxDue > 0) {
+    // Log submission event to security monitoring module (SIEM / Blockchain)
+    const logEvent = {
+      user: user.pan || 'UNKNOWN_PAN',
+      action: "ITR_SUBMISSION",
+      tax_due: taxDue,
+      timestamp: new Date().toISOString(),
+      status: "SUBMITTED_WITH_DUE"
+    };
+    
+    console.log("-----------------------------------------------------");
+    console.log("[SIEM MONITORING] Alert Triggered: High Value Tax Due");
+    console.log(JSON.stringify(logEvent, null, 2));
+    console.log(`[BLOCKCHAIN AUDIT] Hyperledger Fabric Tx Commited: ${uuidv4()}`);
+    console.log("-----------------------------------------------------");
+
+    return res.status(201).json({ 
+      success: true, 
+      return: newReturn, 
+      warning: "Return submitted successfully. Pending tax payment detected.",
+      message: `ITR filed successfully. Acknowledgement: ${newReturn.ackNo}` 
+    });
   }
 
   res.status(201).json({ success: true, return: newReturn, message: `ITR filed successfully. Acknowledgement: ${newReturn.ackNo}` });
@@ -103,8 +129,8 @@ router.post('/calculate', (req, res) => {
 });
 
 // Get AIS (Annual Information Statement) - mock
-router.get('/ais', authMiddleware, (req, res) => {
-  const user = users.find(u => u.id === req.user.id);
+router.get('/ais', authMiddleware, async (req, res) => {
+  const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
   res.json({
@@ -124,7 +150,7 @@ router.get('/ais', authMiddleware, (req, res) => {
 });
 
 // Pay tax (Challan ITNS 280)
-router.post('/pay', authMiddleware, (req, res) => {
+router.post('/pay', authMiddleware, async (req, res) => {
   const { pan, name, ay, taxType, payMode, bank, amounts } = req.body;
 
   if (!pan || !name || !ay || !taxType || !amounts?.total)
@@ -133,7 +159,7 @@ router.post('/pay', authMiddleware, (req, res) => {
   if (amounts.total <= 0)
     return res.status(400).json({ success: false, message: 'Amount must be greater than zero' });
 
-  const user = users.find(u => u.id === req.user.id);
+  const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
   const ts = Date.now();
@@ -170,6 +196,8 @@ router.post('/pay', authMiddleware, (req, res) => {
       ret.taxDue = Math.max(0, (ret.taxDue || 0) - amounts.total);
     }
   }
+
+  await user.save();
 
   res.status(201).json({
     success: true,

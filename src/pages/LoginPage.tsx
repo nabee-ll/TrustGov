@@ -11,6 +11,25 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 type Step = 'login' | 'otp' | 'device' | 'token';
 type LoginMethod = 'userId' | 'phone';
 
+const allowDemoPhoneFallback = ((import.meta as any).env?.VITE_ALLOW_DEMO_PHONE_FALLBACK as string | undefined) === 'true';
+
+const getFirebaseErrorMessage = (error: unknown) => {
+  if (typeof error === 'object' && error && 'code' in error) {
+    const code = String((error as { code?: string }).code || '');
+
+    if (code === 'auth/invalid-phone-number') return 'Enter a valid phone number with country code support.';
+    if (code === 'auth/billing-not-enabled') return 'Firebase phone auth requires billing to be enabled on this Firebase project.';
+    if (code === 'auth/too-many-requests') return 'Too many OTP attempts. Please wait and try again.';
+    if (code === 'auth/quota-exceeded') return 'Firebase SMS quota exceeded. Try again later.';
+    if (code === 'auth/captcha-check-failed') return 'reCAPTCHA verification failed. Refresh the page and try again.';
+    if (code === 'auth/popup-blocked') return 'Browser blocked the verification flow. Allow popups and try again.';
+    if (code === 'auth/network-request-failed') return 'Firebase network request failed. Check your internet connection and try again.';
+    if (code === 'auth/operation-not-allowed') return 'Phone authentication is not enabled in Firebase.';
+  }
+
+  return error instanceof Error ? error.message : 'Unable to send OTP to your phone right now.';
+};
+
 const getBrowserName = () => {
   const ua = navigator.userAgent;
   if (ua.includes('Edg')) return 'Microsoft Edge';
@@ -66,14 +85,34 @@ export function LoginPage() {
           return;
         }
 
-        const normalizedPhone = normalizeFirebasePhone(identifier.trim());
-        const verifier = recaptchaVerifier || buildRecaptchaVerifier('firebase-recaptcha-container');
-        if (!recaptchaVerifier) setRecaptchaVerifier(verifier);
+        try {
+          const normalizedPhone = normalizeFirebasePhone(identifier.trim());
+          const verifier = recaptchaVerifier || buildRecaptchaVerifier('firebase-recaptcha-container');
+          if (!recaptchaVerifier) setRecaptchaVerifier(verifier);
 
-        const result = await startFirebasePhoneVerification(normalizedPhone, verifier);
-        setConfirmationResult(result);
-        setMessage(`OTP sent to ${normalizedPhone}.`);
-        setStep('otp');
+          const result = await startFirebasePhoneVerification(normalizedPhone, verifier);
+          setConfirmationResult(result);
+          setMessage(`OTP sent to ${normalizedPhone}.`);
+          setStep('otp');
+          return;
+        } catch (firebaseError) {
+          setConfirmationResult(null);
+
+          if (!allowDemoPhoneFallback) {
+            setError(getFirebaseErrorMessage(firebaseError));
+            return;
+          }
+        }
+
+        const fallbackRes = await sendOtp(loginMethod, identifier.trim());
+        if (fallbackRes.success) {
+          setMessage(fallbackRes.debugOtp ? `${fallbackRes.message} Demo OTP: ${fallbackRes.debugOtp}` : fallbackRes.message);
+          if (fallbackRes.userId) setResolvedUserId(fallbackRes.userId);
+          setStep('otp');
+          return;
+        }
+
+        setError(fallbackRes.message || 'Unable to send OTP. Please try again.');
         return;
       }
 
@@ -89,7 +128,7 @@ export function LoginPage() {
         setError(res.message);
       }
     } catch (err) {
-      setError('Connection failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Connection failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -101,12 +140,8 @@ export function LoginPage() {
     setError('');
 
     try {
-      const res = loginMethod === 'phone'
+      const res = loginMethod === 'phone' && confirmationResult
         ? await (async () => {
-            if (!confirmationResult) {
-              return { success: false, message: 'OTP session expired. Please request a new OTP.' };
-            }
-
             const credential = await confirmationResult.confirm(otp);
             const idToken = await credential.user.getIdToken();
             return verifyFirebasePhone(idToken);
@@ -136,7 +171,7 @@ export function LoginPage() {
         setError(res.message);
       }
     } catch (err) {
-      setError('Verification failed.');
+      setError(err instanceof Error ? err.message : 'Verification failed.');
     } finally {
       setIsLoading(false);
     }

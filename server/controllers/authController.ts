@@ -6,12 +6,56 @@ import jwt, { type SignOptions } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import { getCollection } from '../db/mongo';
+import { tokenRevocationService } from '../services/tokenRevocationService';
+import { securityMonitor } from '../services/securityMonitor';
+import { securityEventQueue } from '../services/securityEventQueue';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'gov-secure-secret-key-123';
 const ACCESS_TOKEN_EXPIRY = (process.env.ACCESS_TOKEN_EXPIRY || '15m') as SignOptions['expiresIn'];
 const REFRESH_TOKEN_EXPIRY = (process.env.REFRESH_TOKEN_EXPIRY || '7d') as SignOptions['expiresIn'];
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
 const BCRYPT_ROUNDS = 10;
+
+const expiryToMs = (value: SignOptions['expiresIn'], fallbackMs: number) => {
+  if (typeof value === 'number') return value * 1000;
+  if (typeof value !== 'string') return fallbackMs;
+  const match = value.match(/^(\d+)([smhd])$/i);
+  if (!match) return fallbackMs;
+  const amount = Number(match[1]);
+  const unit = match[2].toLowerCase();
+  if (unit === 's') return amount * 1000;
+  if (unit === 'm') return amount * 60 * 1000;
+  if (unit === 'h') return amount * 60 * 60 * 1000;
+  if (unit === 'd') return amount * 24 * 60 * 60 * 1000;
+  return fallbackMs;
+};
+
+const resolveDeviceId = (req: Request) => {
+  const explicit = req.headers['x-device-id'];
+  if (typeof explicit === 'string' && explicit.trim()) return explicit.trim();
+  const ua = req.headers['user-agent'] || 'unknown';
+  return crypto.createHash('sha256').update(String(ua)).digest('hex').slice(0, 16);
+};
+
+// ── Rate-limit / lockout constants ────────────────────────────────────────────
+const OTP_SEND_LIMIT = 3;           // max OTP sends per window
+const OTP_SEND_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const OTP_FAIL_LIMIT = 5;           // wrong OTPs before lockout
+const OTP_LOCKOUT_MS = 15 * 60 * 1000;     // 15-minute lockout
+const IP_FAIL_LIMIT = 10;           // IP failures before block
+const IP_FAIL_WINDOW_MS = 5 * 60 * 1000;   // 5-minute window
+const IP_BLOCK_MS = 30 * 60 * 1000;        // 30-minute IP block
+
+// ── In-memory stores (reset on server restart; replace with Redis for prod) ───
+interface RateLimitEntry { count: number; windowStart: number; }
+interface LockoutEntry   { failCount: number; lockedUntil: number; }
+interface IpEntry        { count: number; windowStart: number; blockedUntil: number; }
+interface DeviceEntry    { ip: string; userAgent: string; seenAt: number; }
+
+const otpSendStore  = new Map<string, RateLimitEntry>(); // key: userId
+const otpFailStore  = new Map<string, LockoutEntry>();   // key: userId
+const ipStore       = new Map<string, IpEntry>();        // key: IP
+const deviceStore   = new Map<string, DeviceEntry>();    // key: userId
 
 let firebaseAppInitialized = false;
 
@@ -28,6 +72,8 @@ interface UserDocument {
 interface TokenRecordDocument {
   _id?: ObjectId;
   userId: string;
+  sessionId: string;
+  deviceId: string;
   tokenHash: string;
   tokenType: 'refresh';
   issuedAt: Date;
@@ -40,10 +86,113 @@ interface OtpRecord {
   expiresAt: number;
 }
 
+interface SecurityEventDocument {
+  _id?: ObjectId;
+  type: 'otp_rate_limited' | 'otp_lockout' | 'ip_blocked' | 'new_device_login';
+  userId?: string;
+  ip: string;
+  userAgent: string;
+  detail: string;
+  occurredAt: Date;
+}
+
 const otpStore = new Map<string, OtpRecord>();
 
 const usersCollection = () => getCollection<UserDocument>(process.env.USERS_COLLECTION || 'users');
 const tokenRecordsCollection = () => getCollection<TokenRecordDocument>(process.env.TOKEN_RECORDS_COLLECTION || 'token_records');
+const securityEventsCollection = () => getCollection<SecurityEventDocument>('security_events');
+
+const logSecurityEvent = async (event: Omit<SecurityEventDocument, '_id' | 'occurredAt'>) => {
+  securityEventQueue.enqueue({
+    type: event.type,
+    userId: event.userId,
+    ip: event.ip,
+    details: {
+      userAgent: event.userAgent,
+      detail: event.detail,
+    },
+  });
+};
+
+// ── Security helpers ──────────────────────────────────────────────────────────
+
+const getClientIp = (req: Request): string =>
+  (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown';
+
+/** Returns minutes remaining if blocked, 0 if allowed. */
+const checkIpBlock = (ip: string): number => {
+  const entry = ipStore.get(ip);
+  if (!entry) return 0;
+  if (entry.blockedUntil > Date.now()) {
+    return Math.ceil((entry.blockedUntil - Date.now()) / 60000);
+  }
+  // window expired – reset
+  if (Date.now() - entry.windowStart > IP_FAIL_WINDOW_MS) {
+    ipStore.delete(ip);
+    return 0;
+  }
+  return 0;
+};
+
+const recordIpFailure = (ip: string): boolean => {
+  const now = Date.now();
+  let entry = ipStore.get(ip) ?? { count: 0, windowStart: now, blockedUntil: 0 };
+  if (now - entry.windowStart > IP_FAIL_WINDOW_MS) {
+    entry = { count: 0, windowStart: now, blockedUntil: 0 };
+  }
+  entry.count += 1;
+  if (entry.count >= IP_FAIL_LIMIT) {
+    entry.blockedUntil = now + IP_BLOCK_MS;
+  }
+  ipStore.set(ip, entry);
+  return entry.count >= IP_FAIL_LIMIT;
+};
+
+/** Returns minutes remaining if rate-limited, 0 if allowed. */
+const checkOtpSendRate = (userId: string): number => {
+  const now = Date.now();
+  const entry = otpSendStore.get(userId);
+  if (!entry) return 0;
+  if (now - entry.windowStart > OTP_SEND_WINDOW_MS) {
+    otpSendStore.delete(userId);
+    return 0;
+  }
+  if (entry.count >= OTP_SEND_LIMIT) {
+    return Math.ceil((entry.windowStart + OTP_SEND_WINDOW_MS - now) / 60000);
+  }
+  return 0;
+};
+
+const recordOtpSend = (userId: string) => {
+  const now = Date.now();
+  const entry = otpSendStore.get(userId) ?? { count: 0, windowStart: now };
+  if (now - entry.windowStart > OTP_SEND_WINDOW_MS) {
+    otpSendStore.set(userId, { count: 1, windowStart: now });
+  } else {
+    otpSendStore.set(userId, { count: entry.count + 1, windowStart: entry.windowStart });
+  }
+};
+
+/** Returns minutes remaining if locked, 0 if allowed. */
+const checkOtpLockout = (userId: string): number => {
+  const entry = otpFailStore.get(userId);
+  if (!entry) return 0;
+  if (entry.lockedUntil > Date.now()) {
+    return Math.ceil((entry.lockedUntil - Date.now()) / 60000);
+  }
+  return 0;
+};
+
+const recordOtpFailure = (userId: string) => {
+  const entry = otpFailStore.get(userId) ?? { failCount: 0, lockedUntil: 0 };
+  entry.failCount += 1;
+  if (entry.failCount >= OTP_FAIL_LIMIT) {
+    entry.lockedUntil = Date.now() + OTP_LOCKOUT_MS;
+  }
+  otpFailStore.set(userId, entry);
+};
+
+const clearOtpFailures = (userId: string) => otpFailStore.delete(userId);
 
 const ensureFirebaseAdmin = () => {
   if (firebaseAppInitialized) return true;
@@ -90,17 +239,45 @@ const generateUserId = async (): Promise<string> => {
   return `TG-${Date.now().toString().slice(-5)}`;
 };
 
-const signAccessToken = (user: UserDocument) => jwt.sign(
-  { sub: user._id?.toString(), userId: user.userId, role: 'citizen' },
-  JWT_SECRET,
-  { expiresIn: ACCESS_TOKEN_EXPIRY }
-);
+const signAccessToken = (user: UserDocument, sessionId: string, deviceId: string) => {
+  const issuedAt = Date.now();
+  const expiry = issuedAt + expiryToMs(ACCESS_TOKEN_EXPIRY, 15 * 60 * 1000);
+  return jwt.sign(
+    {
+      sub: user._id?.toString(),
+      userId: user.userId,
+      user_id: user.userId,
+      role: 'Citizen',
+      device_id: deviceId,
+      session_id: sessionId,
+      issued_at: issuedAt,
+      expiry,
+    },
+    JWT_SECRET,
+    { expiresIn: ACCESS_TOKEN_EXPIRY }
+  );
+};
 
-const signRefreshToken = (user: UserDocument, tokenId: string) => jwt.sign(
-  { sub: user._id?.toString(), userId: user.userId, tokenId, tokenType: 'refresh' },
-  JWT_SECRET,
-  { expiresIn: REFRESH_TOKEN_EXPIRY }
-);
+const signRefreshToken = (user: UserDocument, tokenId: string, sessionId: string, deviceId: string) => {
+  const issuedAt = Date.now();
+  const expiry = issuedAt + expiryToMs(REFRESH_TOKEN_EXPIRY, 7 * 24 * 60 * 60 * 1000);
+  return jwt.sign(
+    {
+      sub: user._id?.toString(),
+      userId: user.userId,
+      user_id: user.userId,
+      tokenId,
+      tokenType: 'refresh',
+      role: 'Citizen',
+      device_id: deviceId,
+      session_id: sessionId,
+      issued_at: issuedAt,
+      expiry,
+    },
+    JWT_SECRET,
+    { expiresIn: REFRESH_TOKEN_EXPIRY }
+  );
+};
 
 const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
 
@@ -122,15 +299,19 @@ const resolveUserByIdentifier = async (loginMethod: 'userId' | 'phone', identifi
   return (await usersCollection()).findOne(query);
 };
 
-const issueSessionForUser = async (user: UserDocument, res: Response) => {
+const issueSessionForUser = async (user: UserDocument, req: Request, res: Response) => {
   const tokenId = uuidv4();
-  const accessToken = signAccessToken(user);
-  const refreshToken = signRefreshToken(user, tokenId);
+  const sessionId = uuidv4();
+  const deviceId = resolveDeviceId(req);
+  const accessToken = signAccessToken(user, sessionId, deviceId);
+  const refreshToken = signRefreshToken(user, tokenId, sessionId, deviceId);
   const refreshTokenHash = hashToken(refreshToken);
   const refreshExpiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   await (await tokenRecordsCollection()).insertOne({
     userId: user.userId,
+    sessionId,
+    deviceId,
     tokenHash: refreshTokenHash,
     tokenType: 'refresh',
     issuedAt: new Date(),
@@ -138,12 +319,16 @@ const issueSessionForUser = async (user: UserDocument, res: Response) => {
     revoked: false,
   });
 
+  securityMonitor.registerDevice(user.userId, deviceId);
+
   res.cookie('access_token', accessToken, getCookieOptions(15 * 60 * 1000));
   res.cookie('refresh_token', refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
   return {
     accessToken,
     refreshToken,
+    sessionId,
+    deviceId,
     user: {
       id: user.userId,
       userId: user.userId,
@@ -214,11 +399,39 @@ export const sendOtp = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: 'loginMethod(userId|phone) and identifier are required.' });
   }
 
+  const ip = getClientIp(req);
+  const userAgent = req.headers['user-agent'] || 'unknown';
+
+  // ── IP block check ─────────────────────────────────────────────────────────
+  const ipBlockMins = checkIpBlock(ip);
+  if (ipBlockMins > 0) {
+    return res.status(429).json({
+      success: false,
+      message: `Too many failed attempts from your network. Try again in ${ipBlockMins} minute${ipBlockMins !== 1 ? 's' : ''}.`,
+    });
+  }
+
   const user = await resolveUserByIdentifier(loginMethod, identifier.trim());
   if (!user) {
+    // Count this as an IP failure so attackers can't enumerate users indefinitely
+    const nowBlocked = recordIpFailure(ip);
+    if (nowBlocked) {
+      await logSecurityEvent({ type: 'ip_blocked', ip, userAgent, detail: 'IP blocked after repeated OTP send failures' });
+    }
     return res.status(404).json({ success: false, message: 'User not found for given identifier.' });
   }
 
+  // ── OTP send rate limit ────────────────────────────────────────────────────
+  const sendWaitMins = checkOtpSendRate(user.userId);
+  if (sendWaitMins > 0) {
+    await logSecurityEvent({ type: 'otp_rate_limited', userId: user.userId, ip, userAgent, detail: `OTP send rate limit hit (max ${OTP_SEND_LIMIT} per ${OTP_SEND_WINDOW_MS / 60000} min)` });
+    return res.status(429).json({
+      success: false,
+      message: `Too many OTP requests. Try again in ${sendWaitMins} minute${sendWaitMins !== 1 ? 's' : ''}.`,
+    });
+  }
+
+  recordOtpSend(user.userId);
   const otp = getOtpForDemo();
   otpStore.set(user.userId, { otp, expiresAt: Date.now() + OTP_EXPIRY_MS });
 
@@ -242,19 +455,86 @@ export const verifyOtp = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: 'loginMethod, identifier, and otp are required.' });
   }
 
+  const ip = getClientIp(req);
+  const userAgent = req.headers['user-agent'] || 'unknown';
+
+  // ── IP block check ─────────────────────────────────────────────────────────
+  const ipBlockMins = checkIpBlock(ip);
+  if (ipBlockMins > 0) {
+    return res.status(429).json({
+      success: false,
+      message: `Too many failed attempts from your network. Try again in ${ipBlockMins} minute${ipBlockMins !== 1 ? 's' : ''}.`,
+    });
+  }
+
   const user = await resolveUserByIdentifier(loginMethod, identifier.trim());
   if (!user) {
+    recordIpFailure(ip);
     return res.status(404).json({ success: false, message: 'User not found.' });
+  }
+
+  // ── Account lockout check ──────────────────────────────────────────────────
+  const lockMins = checkOtpLockout(user.userId);
+  if (lockMins > 0) {
+    return res.status(423).json({
+      success: false,
+      message: `Account temporarily locked after too many failed OTP attempts. Try again in ${lockMins} minute${lockMins !== 1 ? 's' : ''}.`,
+    });
   }
 
   const otpRecord = otpStore.get(user.userId);
   if (!otpRecord || otpRecord.expiresAt < Date.now() || otpRecord.otp !== otp) {
+    // Record failure for both user lockout and IP tracking
+    recordOtpFailure(user.userId);
+    const failedCount = securityMonitor.logFailedLogin(user.userId);
+    const nowBlocked = recordIpFailure(ip);
+
+    if (nowBlocked) {
+      await logSecurityEvent({ type: 'ip_blocked', userId: user.userId, ip, userAgent, detail: 'IP blocked after repeated OTP verify failures' });
+    }
+
+    if (failedCount > 10) {
+      securityMonitor.flagUser(user.userId);
+      securityEventQueue.enqueue({
+        type: 'ATTACK_ATTEMPT',
+        userId: user.userId,
+        ip,
+        details: { attemptType: 'MULTIPLE_FAILED_LOGINS' },
+      });
+    }
+
+    // Check if this failure just triggered a lockout
+    const newLockMins = checkOtpLockout(user.userId);
+    if (newLockMins > 0) {
+      await logSecurityEvent({ type: 'otp_lockout', userId: user.userId, ip, userAgent, detail: `Account locked for ${newLockMins} min after ${OTP_FAIL_LIMIT} wrong OTP attempts` });
+      return res.status(423).json({
+        success: false,
+        message: `Too many wrong OTP attempts. Account locked for ${newLockMins} minute${newLockMins !== 1 ? 's' : ''}.`,
+      });
+    }
+
     return res.status(401).json({ success: false, message: 'Invalid or expired OTP.' });
   }
 
+  // ── Success path ───────────────────────────────────────────────────────────
   otpStore.delete(user.userId);
+  clearOtpFailures(user.userId);
 
-  const session = await issueSessionForUser(user, res);
+  // ── Suspicious device / new IP detection ──────────────────────────────────
+  const lastDevice = deviceStore.get(user.userId);
+  const isNewDevice = lastDevice && (lastDevice.ip !== ip || lastDevice.userAgent !== userAgent);
+  if (isNewDevice) {
+    await logSecurityEvent({
+      type: 'new_device_login',
+      userId: user.userId,
+      ip,
+      userAgent,
+      detail: `Login from new device/IP. Previous: ${lastDevice.ip} / ${lastDevice.userAgent.slice(0, 80)}`,
+    });
+  }
+  deviceStore.set(user.userId, { ip, userAgent, seenAt: Date.now() });
+
+  const session = await issueSessionForUser(user, req, res);
 
   return res.json({
     success: true,
@@ -262,6 +542,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
     accessToken: session.accessToken,
     refreshToken: session.refreshToken,
     user: session.user,
+    ...(isNewDevice ? { securityNotice: 'Login detected from a new device or location.' } : {}),
   });
 };
 
@@ -289,7 +570,7 @@ export const verifyFirebasePhone = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'No TrustGov user found for this phone number.' });
     }
 
-    const session = await issueSessionForUser(user, res);
+    const session = await issueSessionForUser(user, req, res);
     return res.json({
       success: true,
       message: 'Firebase phone verification successful.',
@@ -310,15 +591,40 @@ export const refreshSession = async (req: Request, res: Response) => {
     return res.status(401).json({ success: false, message: 'Refresh token not provided.' });
   }
 
+  if (tokenRevocationService.isRevoked(refreshToken)) {
+    return res.status(401).json({ success: false, message: 'Refresh token has been revoked.' });
+  }
+
   try {
-    const decoded = jwt.verify(refreshToken, JWT_SECRET) as { userId: string; tokenType: string };
+    const decoded = jwt.verify(refreshToken, JWT_SECRET) as {
+      userId?: string;
+      user_id?: string;
+      tokenType: string;
+      session_id?: string;
+      device_id?: string;
+    };
+    const userId = decoded.userId || decoded.user_id;
     if (decoded.tokenType !== 'refresh') {
       return res.status(403).json({ success: false, message: 'Invalid refresh token type.' });
+    }
+    if (!userId) {
+      return res.status(403).json({ success: false, message: 'Invalid refresh token payload.' });
+    }
+
+    const requestDeviceId = resolveDeviceId(req);
+    if (decoded.device_id && decoded.device_id !== requestDeviceId) {
+      securityEventQueue.enqueue({
+        type: 'ATTACK_ATTEMPT',
+        userId,
+        ip: getClientIp(req),
+        details: { attemptType: 'REFRESH_DEVICE_MISMATCH' },
+      });
+      return res.status(401).json({ success: false, message: 'Device mismatch detected. Please login again.' });
     }
 
     const tokenHash = hashToken(refreshToken);
     const tokenRecord = await (await tokenRecordsCollection()).findOne({
-      userId: decoded.userId,
+      userId,
       tokenHash,
       revoked: false,
       expiresAt: { $gt: new Date() },
@@ -328,12 +634,14 @@ export const refreshSession = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'Refresh token is invalid or revoked.' });
     }
 
-    const user = await (await usersCollection()).findOne({ userId: decoded.userId });
+    const user = await (await usersCollection()).findOne({ userId });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    const accessToken = signAccessToken(user);
+    const sessionId = tokenRecord.sessionId || decoded.session_id || uuidv4();
+    const deviceId = tokenRecord.deviceId || decoded.device_id || requestDeviceId;
+    const accessToken = signAccessToken(user, sessionId, deviceId);
     res.cookie('access_token', accessToken, getCookieOptions(15 * 60 * 1000));
 
     return res.json({ success: true, accessToken });
@@ -343,12 +651,13 @@ export const refreshSession = async (req: Request, res: Response) => {
 };
 
 export const me = async (req: Request, res: Response) => {
-  const authUser = (req as any).user as { userId?: string } | undefined;
-  if (!authUser?.userId) {
+  const authUser = (req as any).user as { userId?: string; user_id?: string } | undefined;
+  const userId = authUser?.userId || authUser?.user_id;
+  if (!userId) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 
-  const user = await (await usersCollection()).findOne({ userId: authUser.userId });
+  const user = await (await usersCollection()).findOne({ userId });
   if (!user) {
     return res.status(404).json({ success: false, message: 'User not found.' });
   }
@@ -366,8 +675,13 @@ export const me = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
+  const accessToken = (req.cookies?.access_token || req.headers.authorization?.replace('Bearer ', '')) as string | undefined;
   const refreshToken = req.cookies?.refresh_token as string | undefined;
+  if (accessToken) {
+    tokenRevocationService.revokeToken(accessToken, expiryToMs(ACCESS_TOKEN_EXPIRY, 15 * 60 * 1000));
+  }
   if (refreshToken) {
+    tokenRevocationService.revokeToken(refreshToken, expiryToMs(REFRESH_TOKEN_EXPIRY, 7 * 24 * 60 * 60 * 1000));
     const tokenHash = hashToken(refreshToken);
     await (await tokenRecordsCollection()).updateOne(
       { tokenHash },
