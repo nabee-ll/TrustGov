@@ -10,7 +10,7 @@ export const activityLog = [
 
 export const services = [
   { id: "tax", name: "Tax Portal", description: "File your income tax returns securely.", icon: "FileText" },
-  { id: "health", name: "Healthcare Records", description: "Access your digital health history.", icon: "Activity" },
+  { id: "passport", name: "Passport Seva", description: "Apply and manage your passport services.", icon: "Plane" },
   { id: "land", name: "Land Records", description: "Verify and manage property documents.", icon: "Map" },
   { id: "id", name: "Digital ID Card", description: "Download your secure digital identity.", icon: "CreditCard" },
   { id: "vote", name: "Voting Portal", description: "Register and verify your voting status.", icon: "UserCheck" },

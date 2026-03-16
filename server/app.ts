@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
 import serviceRoutes from './routes/serviceRoutes';
 import gatewayRoutes from './gateway/routes/gatewayRoutes';
+import securitySimulationRoutes from './routes/securitySimulationRoutes';
 import { assertCriticalEnv } from './config/env';
 import { requestLogger } from './middleware/requestLogger';
 import { corsConfig, securityHeaders } from './middleware/securityHeaders';
@@ -22,6 +23,7 @@ app.use(requestLogger);
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/security', securitySimulationRoutes);
 app.use('/api', serviceRoutes);
 app.use('/api/gateway', gatewayRoutes);
 

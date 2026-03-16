@@ -10,7 +10,7 @@ const trackRoutes = require('./routes/track');
 const grievanceRoutes = require('./routes/grievances');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 const MONGO_URI = "mongodb+srv://passport:lo1w0zkgugx7njJX@trustgov.8yuza0i.mongodb.net/trustgov?retryWrites=true&w=majority&appName=trustgov"
 mongoose.connect(MONGO_URI)
   .then(() => {

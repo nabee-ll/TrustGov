@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Shield, Lock, Key, Eye, Activity, Database, CheckCircle, ShieldAlert } from 'lucide-react';
+import { SecuritySimulatorPanel } from '../components/SecuritySimulatorPanel';
 
 const SecuritySection = ({ icon: Icon, title, description, features }: { icon: any, title: string, description: string, features: string[] }) => (
   <div className="glass p-8 rounded-2xl border border-white/10">
@@ -109,6 +110,8 @@ export function SecurityPage() {
           <span>Active Protection Enabled</span>
         </div>
       </div>
+
+      <SecuritySimulatorPanel />
     </div>
   );
 }

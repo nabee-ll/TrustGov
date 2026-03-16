@@ -174,9 +174,11 @@ export function DashboardPage() {
   const [activeToken, setActiveToken] = useState<{ service: Service; meta: TokenMeta } | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const taxServiceUrl = ((import.meta as any).env?.VITE_TAX_SERVICE_URL as string | undefined) || 'http://localhost:3001';
+  const passportServiceUrl = ((import.meta as any).env?.VITE_PASSPORT_SERVICE_URL as string | undefined) || 'http://localhost:3002'; // Default to 3002 or adjust as needed
 
   const serviceRedirectMap: Record<string, string> = {
     tax: taxServiceUrl,
+    passport: passportServiceUrl,
   };
 
   const fetchActivity = async () => {

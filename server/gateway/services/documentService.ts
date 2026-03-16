@@ -79,6 +79,29 @@ export const documentService = {
       throw new Error('Permission denied');
     }
 
+    // --- INTEGRITY VERIFICATION ---
+    const latestVersion = doc.versions[doc.versions.length - 1];
+    if (latestVersion) {
+      const actualHash = hashContent(latestVersion.content);
+      if (actualHash !== latestVersion.hash || actualHash !== doc.currentHash) {
+        auditChain.addBlock({
+          document_id: doc.documentId,
+          action: 'DOCUMENT_TAMPER_DETECTED',
+          user_id: actor.userId,
+          previous_hash: doc.currentHash,
+          new_hash: actualHash,
+          timestamp: new Date().toISOString(),
+        });
+        
+        // Import inline or use global to avoid circular dependencies if any
+        const { securityMonitoringService } = require('./securityMonitoringService');
+        securityMonitoringService.flagAttack(actor.userId, 'SYSTEM', 'Document Tampering Detected — QUARANTINED');
+        
+        throw new Error('INTEGRITY_CHECK_FAILED: Document has been tampered with and is now quarantined.');
+      }
+    }
+    // ------------------------------
+
     auditChain.addBlock({
       document_id: doc.documentId,
       action: 'DOCUMENT_ACCESS',
