@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { env } from '../config/env';
 import { tokenRevocationService } from '../services/tokenRevocationService';
 import { securityMonitor } from '../services/securityMonitor';
+import { securityMonitoringService } from '../gateway/services/securityMonitoringService';
 import { riskEngine } from '../services/riskEngine';
 import { securityEventQueue } from '../services/securityEventQueue';
 
@@ -32,6 +33,10 @@ const getDeviceId = (req: Request) => {
 };
 
 export const validateJwt = (req: Request, res: Response, next: NextFunction) => {
+  if (securityMonitoringService.isSystemUnderAttack()) {
+    return res.status(403).json({ success: false, message: 'SYSTEM LOCKDOWN ENFORCED: Active Attack Simulation Running' });
+  }
+
   const token = resolveToken(req);
 
   if (!token) {
@@ -50,12 +55,12 @@ export const validateJwt = (req: Request, res: Response, next: NextFunction) => 
       return res.status(401).json({ success: false, message: 'Invalid token payload.' });
     }
 
-    if (decoded.session_id && securityMonitor.isSessionBlocked(decoded.session_id)) {
-      return res.status(401).json({ success: false, message: 'Session blocked due to suspicious activity.' });
+    if (decoded.session_id && (securityMonitor.isSessionBlocked(decoded.session_id) || securityMonitoringService.isSessionBlocked(decoded.session_id))) {
+      return res.status(403).json({ success: false, message: 'Access denied by security policy' });
     }
 
-    if (securityMonitor.isUserBlocked(userId)) {
-      return res.status(401).json({ success: false, message: 'User blocked due to suspicious activity.' });
+    if (securityMonitor.isUserBlocked(userId) || securityMonitoringService.isUserBlocked(userId)) {
+      return res.status(403).json({ success: false, message: 'Access denied by security policy' });
     }
 
     const requestDeviceId = getDeviceId(req);
@@ -76,7 +81,7 @@ export const validateJwt = (req: Request, res: Response, next: NextFunction) => 
         ip: req.ip,
         details: { riskScore: risk.score, reason: 'risk_engine_block' },
       });
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+      return res.status(403).json({ success: false, message: 'Access denied by security policy' });
     }
 
     if (risk.level === 'reauth') {

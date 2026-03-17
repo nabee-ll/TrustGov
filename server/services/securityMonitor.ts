@@ -91,4 +91,12 @@ export const securityMonitor = {
     }
     return true;
   },
+
+  resetAllBlocks() {
+    sessionBlocks.clear();
+    userSignals.forEach((state) => {
+      state.blockedUntil = undefined;
+      state.flagged = false;
+    });
+  },
 };

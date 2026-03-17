@@ -9,7 +9,7 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3003', 'http://localhost:3013', 'http://localhost:5173'], credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -34,7 +34,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: 'Internal server error' });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5003;
 app.listen(PORT, () => {
   console.log(`🚀 Parivahan Backend running on http://localhost:${PORT}`);
 });

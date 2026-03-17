@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldAlert, Fingerprint, Code, UserX, FileX, TerminalSquare } from 'lucide-react';
+import { ShieldAlert, Fingerprint, Code, UserX, FileX, TerminalSquare, AlertCircle } from 'lucide-react';
 
 interface SimulationResult {
   message: string;

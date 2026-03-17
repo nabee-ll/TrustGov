@@ -3,15 +3,15 @@ export const users = [
 ];
 
 export const activityLog = [
-  { id: 1, type: "Login", status: "Success", timestamp: new Date().toISOString(), location: "New Delhi, IN" },
-  { id: 2, type: "API Access", status: "Verified", timestamp: new Date(Date.now() - 3600000).toISOString(), location: "Mumbai, IN" },
-  { id: 3, type: "Document Download", status: "Success", timestamp: new Date(Date.now() - 7200000).toISOString(), location: "Bangalore, IN" }
+  { id: 1, type: "Login", status: "Success", timestamp: new Date().toISOString(), location: "Fetching location..." },
+  { id: 2, type: "API Access", status: "Verified", timestamp: new Date(Date.now() - 3600000).toISOString(), location: "Fetching location..." },
+  { id: 3, type: "Document Download", status: "Success", timestamp: new Date(Date.now() - 7200000).toISOString(), location: "Fetching location..." }
 ];
 
 export const services = [
-  { id: "tax", name: "Tax Portal", description: "File your income tax returns securely.", icon: "FileText" },
+  { id: "tax", name: "Tax Portal", description: "File your income tax returns securely.", icon: "Briefcase" },
   { id: "passport", name: "Passport Seva", description: "Apply and manage your passport services.", icon: "Plane" },
-  { id: "land", name: "Land Records", description: "Verify and manage property documents.", icon: "Map" },
+  { id: "parivahan", name: "Parivahan Sewa", description: "Vehicle registration and driving licenses.", icon: "Car" },
   { id: "id", name: "Digital ID Card", description: "Download your secure digital identity.", icon: "CreditCard" },
   { id: "vote", name: "Voting Portal", description: "Register and verify your voting status.", icon: "UserCheck" },
   { id: "edu", name: "Education Services", description: "Access academic records and certificates.", icon: "GraduationCap" }

@@ -36,7 +36,21 @@ const serviceRequestsCollection = () => getCollection<ServiceRequestRecord>(proc
 
 const getAuthUser = (req: Request) => (req as any).user as { userId?: string; sub?: string } | undefined;
 
-const addActivity = async (userId: string, type: string, status: string, location = 'Chennai, India') => {
+const addActivity = async (userId: string, type: string, status: string, location?: string) => {
+  if (!location) {
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      const data = await res.json();
+      if (data && data.city && data.country_name) {
+        location = `${data.city}, ${data.country_name}`;
+      } else {
+        location = 'Unknown Location';
+      }
+    } catch {
+      location = 'Chennai, India';
+    }
+  }
+
   await (await activityCollection()).insertOne({
     userId,
     type,

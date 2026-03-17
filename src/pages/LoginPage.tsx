@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, ArrowRight, Loader2, CheckCircle, AlertCircle, Laptop, MapPin, Cpu, User, Phone } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -71,7 +71,23 @@ export function LoginPage() {
 
   const browser = getBrowserName();
   const os = getOperatingSystem();
-  const locationLabel = 'Chennai, India';
+  
+  const [locationLabel, setLocationLabel] = useState('Fetching location...');
+
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.city && data.country_name) {
+          setLocationLabel(`${data.city}, ${data.country_name}`);
+        } else {
+          setLocationLabel('Unknown Location');
+        }
+      })
+      .catch(() => {
+        setLocationLabel('Chennai, India'); // Fallback on failure
+      });
+  }, []);
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();

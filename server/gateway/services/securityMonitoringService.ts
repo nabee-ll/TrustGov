@@ -6,6 +6,7 @@ const modificationsByUser = new Map<string, number[]>();
 const blockedUsers = new Map<string, number>();
 const blockedSessions = new Set<string>();
 const alerts: SecurityAlert[] = [];
+let globalUnderAttack = false;
 
 const now = () => Date.now();
 
@@ -67,6 +68,7 @@ export const securityMonitoringService = {
   },
 
   flagAttack(userId: string | undefined, ip: string, message: string) {
+    globalUnderAttack = true;
     if (userId) blockedUsers.set(userId, now() + 15 * 60 * 1000);
     addAlert({
       userId,
@@ -74,6 +76,25 @@ export const securityMonitoringService = {
       type: 'ATTACK_ATTEMPT',
       message,
     });
+  },
+
+  clearAttackMode() {
+    globalUnderAttack = false;
+  },
+
+  clearBlocks() {
+    blockedUsers.clear();
+    blockedSessions.clear();
+  },
+
+  resetSimulationState() {
+    globalUnderAttack = false;
+    blockedUsers.clear();
+    blockedSessions.clear();
+  },
+
+  isSystemUnderAttack() {
+    return globalUnderAttack;
   },
 
   blockSession(sessionId: string) {

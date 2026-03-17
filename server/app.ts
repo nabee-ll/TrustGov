@@ -8,11 +8,13 @@ import { assertCriticalEnv } from './config/env';
 import { requestLogger } from './middleware/requestLogger';
 import { corsConfig, securityHeaders } from './middleware/securityHeaders';
 import { securityEventQueue } from './services/securityEventQueue';
+import { attackSimulator } from './services/securityAttackSimulator';
 
 const app = express();
 
 assertCriticalEnv();
 securityEventQueue.start();
+attackSimulator.start();
 
 // Middleware
 app.use(express.json());

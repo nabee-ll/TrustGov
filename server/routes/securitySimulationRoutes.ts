@@ -2,6 +2,7 @@ import express from 'express';
 import { securitySimulator } from '../services/securitySimulator';
 import { auditChain } from '../gateway/blockchain/mockChain';
 import { securityMonitoringService } from '../gateway/services/securityMonitoringService';
+import { securityAlertEmitter, attackSimulator } from '../services/securityAttackSimulator';
 
 const router = express.Router();
 
@@ -17,6 +18,16 @@ router.get('/blockchain', (req, res) => {
     hash: b.current_hash
   }));
   res.json({ success: true, blockchain: formattedBlocks });
+});
+
+router.post('/simulate/start', (req, res) => {
+  attackSimulator.start(true); // pass true to force start even if DEMO_MODE=false
+  res.json({ success: true, message: 'Attack simulator started' });
+});
+
+router.post('/simulate/stop', (req, res) => {
+  attackSimulator.stop();
+  res.json({ success: true, message: 'Attack simulator stopped' });
 });
 
 router.post('/simulate/jwt', (req, res) => {
@@ -49,6 +60,23 @@ router.post('/simulate/tamper', (req, res) => {
 
 router.get('/alerts', (req, res) => {
   res.json({ success: true, alerts: securityMonitoringService.getAlerts() });
+});
+
+router.get('/alerts-stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const listener = (data: any) => {
+    res.write(`event: SECURITY_ALERT\n`);
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
+  securityAlertEmitter.on('SECURITY_ALERT', listener);
+
+  req.on('close', () => {
+    securityAlertEmitter.off('SECURITY_ALERT', listener);
+  });
 });
 
 export default router;

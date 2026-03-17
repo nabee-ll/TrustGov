@@ -174,11 +174,13 @@ export function DashboardPage() {
   const [activeToken, setActiveToken] = useState<{ service: Service; meta: TokenMeta } | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const taxServiceUrl = ((import.meta as any).env?.VITE_TAX_SERVICE_URL as string | undefined) || 'http://localhost:3001';
-  const passportServiceUrl = ((import.meta as any).env?.VITE_PASSPORT_SERVICE_URL as string | undefined) || 'http://localhost:3002'; // Default to 3002 or adjust as needed
+  const passportServiceUrl = ((import.meta as any).env?.VITE_PASSPORT_SERVICE_URL as string | undefined) || 'http://localhost:3012';
+  const parivahanServiceUrl = ((import.meta as any).env?.VITE_PARIVAHAN_SERVICE_URL as string | undefined) || 'http://localhost:3013';
 
   const serviceRedirectMap: Record<string, string> = {
     tax: taxServiceUrl,
     passport: passportServiceUrl,
+    parivahan: parivahanServiceUrl,
   };
 
   const fetchActivity = async () => {
@@ -236,11 +238,13 @@ export function DashboardPage() {
     if (!activeToken) return;
 
     const redirectUrl = serviceRedirectMap[activeToken.service.id];
+    console.log("Token Done -> Service ID:", activeToken.service.id, "Redirect URL:", redirectUrl);
     if (redirectUrl) {
       window.location.href = redirectUrl;
       return;
     }
 
+    alert(`No redirect map found for: ${activeToken.service.id}`);
     setActiveToken(null);
   };
 

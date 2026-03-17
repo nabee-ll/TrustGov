@@ -17,19 +17,21 @@ import { SecurityPage } from './pages/SecurityPage';
 import { DevelopersPage } from './pages/DevelopersPage';
 import { AboutPage } from './pages/AboutPage';
 import { BlockchainExplorer } from './pages/BlockchainExplorer';
+import { SecurityAlertBanner } from './components/SecurityAlertBanner';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
-  
+
   if (isLoading) return null;
   if (!user) return <Navigate to="/login" replace />;
-  
+
   return <>{children}</>;
 };
 
 function AppContent() {
   return (
     <div className="flex flex-col min-h-screen">
+      <SecurityAlertBanner />
       <Navbar />
       <main className="flex-grow">
         <Routes>

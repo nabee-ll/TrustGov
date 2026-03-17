@@ -53,7 +53,11 @@ export interface BlockchainAuditData {
     | 'DOCUMENT_ACCESS'
     | 'FAILED_ACCESS_ATTEMPT'
     | 'MODIFY_ATTEMPT_DENIED'
-    | 'ATTACK_ATTEMPT';
+    | 'ATTACK_ATTEMPT'
+    | 'DOCUMENT_TAMPER_DETECTED'
+    | 'TOKEN_TAMPER_ATTEMPT'
+    | 'API_ATTACK_ATTEMPT'
+    | 'PRIVILEGE_ESCALATION_ATTEMPT';
   user_id: string;
   previous_hash?: string;
   new_hash?: string;

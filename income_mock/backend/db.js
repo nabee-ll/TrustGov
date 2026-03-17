@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 //   3. Replace the placeholder below, or set the MONGO_URI environment variable in a .env file
 const MONGO_URI =
   process.env.MONGO_URI ||
-  'mongodb+srv://Incometax:nZUvuNI2uUKzdaGM@cluster0.REPLACE_THIS.mongodb.net/incometaxdb?retryWrites=true&w=majority&appName=Cluster0';
+  'mongodb+srv://nabeels2024csecs_db_user:nabeel@trustgov.8yuza0i.mongodb.net/trustgov?retryWrites=true&w=majority&appName=trustgov';
 
 // ── Connect ───────────────────────────────────────────────────────────────────
 mongoose
