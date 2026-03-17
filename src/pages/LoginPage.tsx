@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AccountBlockedScreen, { type BlockedDetails } from '../components/AccountBlockedScreen';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, ArrowRight, Loader2, CheckCircle, AlertCircle, Laptop, MapPin, Cpu, User, Phone } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -53,6 +54,8 @@ export function LoginPage() {
   const navigate = useNavigate();
   const { sendOtp, verifyOtp, verifyFirebasePhone } = useAuth();
 
+  const defaultLocationLabel = 'Chennai, India';
+
   const [step, setStep] = useState<Step>('login');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('userId');
   const [identifier, setIdentifier] = useState('');
@@ -68,24 +71,24 @@ export function LoginPage() {
     location: false,
     session: false,
   });
+  const [blockedDetails, setBlockedDetails] = useState<BlockedDetails | null>(null);
+  const [detectedLocation, setDetectedLocation] = useState(defaultLocationLabel);
 
   const browser = getBrowserName();
   const os = getOperatingSystem();
-  
-  const [locationLabel, setLocationLabel] = useState('Fetching location...');
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
       .then((res) => res.json())
       .then((data) => {
         if (data && data.city && data.country_name) {
-          setLocationLabel(`${data.city}, ${data.country_name}`);
+          setDetectedLocation(`${data.city}, ${data.country_name}`);
         } else {
-          setLocationLabel('Unknown Location');
+          setDetectedLocation('Unknown Location');
         }
       })
       .catch(() => {
-        setLocationLabel('Chennai, India'); // Fallback on failure
+        setDetectedLocation(defaultLocationLabel);
       });
   }, []);
 
@@ -175,6 +178,31 @@ export function LoginPage() {
         await delay(500);
         setChecks((prev) => ({ ...prev, device: true }));
         await delay(500);
+
+        // ── Real IP + Location security check ──────────────────────────────
+        try {
+          const secRes = await fetch('/api/auth/check-security', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          const secData = await secRes.json();
+
+          if (secData.blocked) {
+            // Show the AccountBlockedScreen overlay immediately
+            setBlockedDetails(secData.blockedDetails as BlockedDetails);
+            setIsLoading(false);
+            return;
+          }
+
+          // Use geolocation-resolved location label when available
+          if (secData.location) {
+            setDetectedLocation(secData.location);
+          }
+        } catch {
+          // Network error during security check – fail open (let user through)
+        }
+
         setChecks((prev) => ({ ...prev, location: true }));
         await delay(500);
         setChecks((prev) => ({ ...prev, session: true }));
@@ -194,7 +222,17 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-20 relative overflow-hidden">
+    <>
+      {/* ── Account blocked overlay ───────────────────────────────────────── */}
+      {blockedDetails && (
+        <AccountBlockedScreen
+          details={blockedDetails}
+          onBack={() => setBlockedDetails(null)}
+          adminEmail="support@trustgov.in"
+        />
+      )}
+
+      <div className="min-h-screen flex items-center justify-center bg-background px-4 py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(37,99,235,0.02),transparent_70%)]" />
 
       <motion.div
@@ -368,7 +406,7 @@ export function LoginPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-text-muted flex items-center"><MapPin className="w-4 h-4 mr-2" />Location</span>
-                      <span className="font-semibold text-text-main">{locationLabel}</span>
+                      <span className="font-semibold text-text-main">{detectedLocation}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-text-muted">Status</span>
@@ -431,6 +469,7 @@ export function LoginPage() {
         </div>
       </motion.div>
       <div id="firebase-recaptcha-container" />
-    </div>
+      </div>
+    </>
   );
 }

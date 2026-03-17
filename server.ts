@@ -19,7 +19,7 @@ const isPortAvailable = (port: number, host = '0.0.0.0') => new Promise<boolean>
 });
 
 const resolveServerPort = async (basePort: number) => {
-  const allowFallback = (process.env.AUTO_PORT_FALLBACK || 'true').toLowerCase() !== 'false';
+  const allowFallback = (process.env.AUTO_PORT_FALLBACK || 'false').toLowerCase() !== 'false';
   if (await isPortAvailable(basePort)) return basePort;
   if (!allowFallback) return basePort;
 

@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'incometax_portal_secret_2024';
+const express = require("express");
+const ddosDetection = require("./ddosDetection");
 
+const app = express();
+
+app.use(ddosDetection);
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
