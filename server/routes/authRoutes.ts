@@ -13,5 +13,6 @@ router.post('/verify-firebase-phone', loginRateLimiter, requireFields(['idToken'
 router.post('/refresh', authController.refreshSession);
 router.get('/me', authenticateToken, authController.me);
 router.post('/logout', authController.logout);
+router.post('/check-security', authController.checkSecurity);
 
 export default router;

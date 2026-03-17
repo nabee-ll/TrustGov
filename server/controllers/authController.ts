@@ -701,3 +701,90 @@ export const logout = async (req: Request, res: Response) => {
 
   return res.json({ success: true, message: 'Logged out successfully' });
 };
+
+// ── IP Geolocation helper (ip-api.com, free tier – no key needed) ─────────────
+const geoLookup = (ip: string): Promise<{ country: string; countryCode: string; city: string; status: string }> =>
+  new Promise((resolve) => {
+    // Use localhost/private IPs as India for local development
+    if (!ip || ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('::ffff:127.')) {
+      return resolve({ country: 'India', countryCode: 'IN', city: 'Chennai', status: 'success' });
+    }
+    const url = `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,countryCode,city`;
+    import('node:http').then(({ get }) => {
+      const req = get(url, (res) => {
+        let data = '';
+        res.on('data', (c: Buffer) => { data += c; });
+        res.on('end', () => {
+          try { resolve(JSON.parse(data)); }
+          catch { resolve({ country: 'Unknown', countryCode: 'XX', city: 'Unknown', status: 'fail' }); }
+        });
+      });
+      req.on('error', () => resolve({ country: 'Unknown', countryCode: 'XX', city: 'Unknown', status: 'fail' }));
+      req.setTimeout(4000, () => { req.destroy(); resolve({ country: 'Unknown', countryCode: 'XX', city: 'Unknown', status: 'fail' }); });
+    }).catch(() => resolve({ country: 'Unknown', countryCode: 'XX', city: 'Unknown', status: 'fail' }));
+  });
+
+/** POST /api/auth/check-security
+ *  Called after OTP verification, during the device/location security check.
+ *  Returns { success: true, location } if OK, or { success: false, blocked: true, blockedDetails } if not.
+ */
+export const checkSecurity = async (req: Request, res: Response) => {
+  const ip = getClientIp(req);
+
+  // ── Check existing IP block ────────────────────────────────────────────────
+  const ipBlockMins = checkIpBlock(ip);
+  if (ipBlockMins > 0) {
+    const now = Date.now();
+    const blockedAt = new Date(now - IP_BLOCK_MS + ipBlockMins * 60 * 1000).toISOString();
+    const blockExpiresAt = new Date(now + ipBlockMins * 60 * 1000).toISOString();
+    return res.status(403).json({
+      success: false,
+      blocked: true,
+      reason: 'ip_blocked',
+      blockedDetails: {
+        blockedAt,
+        blockExpiresAt,
+        remainingMinutes: ipBlockMins,
+      },
+    });
+  }
+
+  // ── Geolocation check ──────────────────────────────────────────────────────
+  const geo = await geoLookup(ip);
+
+  // Block access from outside India
+  const ALLOWED_COUNTRIES = (process.env.ALLOWED_COUNTRY_CODES || 'IN').split(',').map(c => c.trim().toUpperCase());
+  if (geo.status === 'success' && !ALLOWED_COUNTRIES.includes(geo.countryCode)) {
+    const now = Date.now();
+    const BLOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+    const blockedAt = new Date(now).toISOString();
+    const blockExpiresAt = new Date(now + BLOCK_DURATION_MS).toISOString();
+
+    // Record as IP failure to discourage repeated probing from foreign IPs
+    recordIpFailure(ip);
+    await logSecurityEvent({
+      type: 'ip_blocked',
+      ip,
+      userAgent: req.headers['user-agent'] || 'unknown',
+      detail: `Access denied: location ${geo.city}, ${geo.country} (${geo.countryCode}) not in allowed regions`,
+    });
+
+    return res.status(403).json({
+      success: false,
+      blocked: true,
+      reason: 'location_not_allowed',
+      blockedDetails: {
+        blockedAt,
+        blockExpiresAt,
+        remainingMinutes: 15,
+      },
+    });
+  }
+
+  // ── All checks passed ─────────────────────────────────────────────────────
+  return res.json({
+    success: true,
+    location: geo.status === 'success' ? `${geo.city}, ${geo.country}` : 'India',
+    countryCode: geo.countryCode,
+  });
+};
