@@ -1,11 +1,6 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'passport-seva-secret-2026';
-const express = require("express");
-const ddosDetection = require("./ddosDetection");
 
-const app = express();
-
-app.use(ddosDetection);
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ success: false, message: 'No token provided' });

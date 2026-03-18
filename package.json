@@ -8,7 +8,9 @@
     "build": "vite build",
     "start": "tsx server.ts",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "demo:start": "powershell -ExecutionPolicy Bypass -File scripts/presentation-start.ps1",
+    "demo:check": "powershell -ExecutionPolicy Bypass -File scripts/presentation-precheck.ps1"
   },
   "dependencies": {
     "@aws-sdk/client-managedblockchain": "^3.888.0",

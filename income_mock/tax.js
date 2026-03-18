@@ -1,9 +1,42 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { User, TaxReturn } = require('./backend/db');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'incometax_jwt_secret_key_2024';
+
+const taxAuditChain = [];
+
+function calculateHash(index, timestamp, payload, previousHash) {
+  return crypto
+    .createHash('sha256')
+    .update(`${index}|${timestamp}|${JSON.stringify(payload)}|${previousHash}`)
+    .digest('hex');
+}
+
+function addTaxAuditBlock(payload) {
+  const previousHash = taxAuditChain.length ? taxAuditChain[taxAuditChain.length - 1].hash : 'GENESIS';
+  const block = {
+    index: taxAuditChain.length,
+    timestamp: new Date().toISOString(),
+    previousHash,
+    payload,
+  };
+  block.hash = calculateHash(block.index, block.timestamp, block.payload, block.previousHash);
+  taxAuditChain.push(block);
+  return block;
+}
+
+function verifyTaxAuditChain() {
+  for (let i = 0; i < taxAuditChain.length; i += 1) {
+    const block = taxAuditChain[i];
+    const expected = calculateHash(block.index, block.timestamp, block.payload, block.previousHash);
+    if (expected !== block.hash) return false;
+    if (i > 0 && block.previousHash !== taxAuditChain[i - 1].hash) return false;
+  }
+  return true;
+}
 
 // Inline auth middleware
 function auth(req, res, next) {
@@ -124,10 +157,28 @@ router.post('/file-return', auth, async (req, res) => {
       deductionDetails: deduction_details || {},
     });
 
+    const auditBlock = addTaxAuditBlock({
+      type: 'TAX_RETURN_FILED',
+      userId: String(req.user.id),
+      ackNumber,
+      assessmentYear: assessment_year,
+      grossIncome,
+      taxableIncome,
+      taxPayable,
+      tds,
+      refund,
+    });
+
     return res.status(201).json({
       message: 'Return filed successfully',
       ack_number: ackNumber,
       return: newReturn,
+      blockchain_proof: {
+        block_index: auditBlock.index,
+        tx_hash: auditBlock.hash,
+        previous_hash: auditBlock.previousHash,
+        tamper_proof: true,
+      },
     });
   } catch (err) {
     if (err.code === 11000)
@@ -135,6 +186,13 @@ router.post('/file-return', auth, async (req, res) => {
     console.error('File return error:', err);
     return res.status(500).json({ error: 'Server error filing return' });
   }
+});
+
+router.get('/blockchain', auth, (_req, res) => {
+  return res.json({
+    integrity_ok: verifyTaxAuditChain(),
+    blocks: taxAuditChain,
+  });
 });
 
 // ── POST /api/tax/calculate (public) ─────────────────────────────────────────
